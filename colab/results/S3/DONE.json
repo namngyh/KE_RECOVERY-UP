@@ -1,0 +1,13 @@
+{
+ "step": "S3",
+ "status": "OK",
+ "seconds": 0.7,
+ "summary": {
+  "bars": 110056,
+  "unclassified_bars": 1137,
+  "I_std_atc": 0.8779876606143735,
+  "I_std_non_atc": 0.3049419826964172,
+  "I_tilde_std_atc": 1.0816695657941626,
+  "I_tilde_std_non_atc": 0.7352150389434777
+ }
+}

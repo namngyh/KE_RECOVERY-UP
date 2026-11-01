@@ -1,0 +1,16 @@
+{
+ "step": "S6",
+ "status": "OK",
+ "seconds": 18.5,
+ "summary": {
+  "configs": 27,
+  "A0_U_dev": 3.545,
+  "A0_U_val": 1.492,
+  "exposure_share": {
+   "A0_KE_goc": 0.578,
+   "A6_long_only": 0.331,
+   "A6_short_only": 0.247
+  },
+  "best_dev_config": "A5_k_smooth_18"
+ }
+}

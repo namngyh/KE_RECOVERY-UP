@@ -1,0 +1,12 @@
+{
+ "step": "S9",
+ "status": "OK",
+ "seconds": 15.7,
+ "summary": {
+  "passed": [],
+  "M9": "không dựng",
+  "SPA_p": 0.3713,
+  "PBO": 0.278,
+  "test": "đã chạy"
+ }
+}

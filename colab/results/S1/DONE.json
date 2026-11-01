@@ -1,0 +1,15 @@
+{
+ "step": "S1",
+ "status": "OK",
+ "seconds": 6.1,
+ "summary": {
+  "p0": {
+   "trades": 1867,
+   "wins": 890,
+   "net_points": 4337.442849999841
+  },
+  "net_points_tax0p1_full": 3909.2,
+  "net_points_tax0p1_to_0717": 3818.9,
+  "trades_to_0717": 1807
+ }
+}

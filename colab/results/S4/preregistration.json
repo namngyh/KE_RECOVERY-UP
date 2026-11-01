@@ -1,0 +1,202 @@
+{
+ "prereg": {
+  "M4": {
+   "C": 1.0,
+   "embargo_sessions": 1,
+   "features": [
+    "absB_norm",
+    "dist_ema_z",
+    "I_tilde",
+    "A_tilde",
+    "dI_tilde",
+    "J_tilde",
+    "near_expiry",
+    "after_holiday",
+    "first_day_after_expiry",
+    "session_part",
+    "logh_z",
+    "side"
+   ],
+   "label": "net_pnl>0 của lệnh M0 (sau chi phí)",
+   "min_events": 100,
+   "model": "logistic L2",
+   "retrain": "monthly",
+   "tau_grid": [
+    0.45,
+    0.5,
+    0.55
+   ]
+  },
+  "M8": {
+   "L_m": {
+    "high": [
+     32,
+     20
+    ],
+    "low": [
+     96,
+     40
+    ],
+    "mid": [
+     64,
+     29
+    ]
+   },
+   "controls": [
+    [
+     32,
+     20
+    ],
+    [
+     96,
+     40
+    ]
+   ],
+   "note": "thiết kế ban đầu (đổi chế độ theo ER từng nến) cho 83% giao cắt giả tại nến đổi chế độ nên được thay trước khi có kết quả giao dịch",
+   "regimes_er_q": [
+    0.33,
+    0.67
+   ],
+   "rule": "chế độ theo ER trung vị của phiên TRƯỚC (cập nhật mỗi phiên); ngưỡng = phân vị của ER trung vị phiên trên dev; không ghi nhận giao cắt tại nến đổi chế độ"
+  },
+  "costs": {
+   "contracts": 1,
+   "fee_rate": 5e-05,
+   "infra_fee": "không cộng: phí 0,005% được coi là all-in (quyết định của người dùng)",
+   "initial_margin_rate": 0.1848,
+   "slippage_points": 0.2,
+   "tax_assumption": "tax_rate=0,1% áp cho toàn lịch sử với ký quỹ 18,48% (không dùng tỷ lệ VSDC theo ngày)",
+   "tax_rate": 0.001
+  },
+  "date": "2026-11-01",
+  "egarchx": {
+   "D": [
+    "near_expiry",
+    "after_holiday",
+    "first_day_after_expiry"
+   ],
+   "RV": {
+    "A_roll": 0,
+    "chi_lunch": 0,
+    "chi_night": 0,
+    "intra": "tổng bình phương lợi suất 1m trong phiên, bỏ bước qua nghỉ trưa"
+   },
+   "X": [
+    "log RV_intra(d-1)",
+    "log(1e-3 + r_night(d-1)^2)"
+   ],
+   "benchmarks": [
+    "rolling_var_20",
+    "ewma_0.94",
+    "mean_RV_5"
+   ],
+   "dist_selection": "log-score nhỏ nhất trên val",
+   "distributions": [
+    "normal",
+    "student_t",
+    "skew_t"
+   ],
+   "gate": "QLIKE nhỏ hơn có ý nghĩa (DM một phía p<0,10) so với đối chứng tốt nhất trên val; nếu không, M1-M4 chỉ là kiểm chứng âm",
+   "mean": "hằng số",
+   "min_train_sessions": 250,
+   "refit_every": 60,
+   "return": "r_cc (đã hiệu chỉnh roll) x100 (phần trăm)",
+   "var_levels": [
+    0.01,
+    0.05
+   ]
+  },
+  "features": {
+   "ER_n": 20,
+   "V_stat": "mean",
+   "V_window": 60,
+   "atc_sensitivity": "độ nhạy bổ sung (không có trong đề cương): bỏ ATC khỏi I, A, dI",
+   "delta_I_versions": [
+    "within_session",
+    "allow_overnight"
+   ],
+   "eps0": 0.1,
+   "eps0_note": "eps0=1e-6 ban đầu cho |I~| tới 2e6 ở 2 nến (cửa sổ ô gần như hằng số, đầu mẫu); chọn 0,1 ~ 1/3 độ lệch chuẩn điển hình của I theo ô (0,26), dựa trên thang đo của biến, trước mọi kết quả giao dịch",
+   "eps_V": 1.0,
+   "missing_rule": "Ĩ thiếu (V_sigma=0) -> đặt 0 sau chuẩn hóa, kèm cờ unclassified; ATC KHÔNG bị loại",
+   "slot_min_periods": 20,
+   "slot_window": 60
+  },
+  "filters": {
+   "M2_band_q": [
+    0.2,
+    0.8
+   ],
+   "M3_upper_q": 0.8,
+   "M5C_variants": [
+    "no_entry_near_expiry",
+    "no_entry_after_holiday_or_first_day",
+    "both"
+   ],
+   "M7_er_q": [
+    0.3,
+    0.5,
+    0.7
+   ],
+   "quantiles_from": "dev",
+   "rule": "bộ lọc chỉ chặn lệnh MỞ MỚI; vị thế đang mở được theo dõi và đóng bình thường (đề cương 8.2)"
+  },
+  "gate": {
+   "holm_alpha": 0.1,
+   "mdd_tolerance": 1.1,
+   "paired_bootstrap": {
+    "block_sessions": 5,
+    "reps": 2000,
+    "seed": 20261101
+   },
+   "pass_rule": "trên val: dU>0, p một phía Holm<0,10 (họ M1-M8), MDD_val<=1,10 x MDD_val(M0)",
+   "selection_within_family": "cấu hình có U_dev cao nhất; giá trị val không dùng để chọn trong họ"
+  },
+  "horizons": {
+   "bars": [
+    1,
+    3,
+    6,
+    12
+   ],
+   "note": "R_exec: vào ở open t+1, ra ở open t+1+h cùng phiên; trừ trượt giá 2x0,2 điểm và phí 2x0,005%",
+   "primary": 6
+  },
+  "lambda_grid_c": [
+   0.1,
+   0.25,
+   0.5,
+   1.0
+  ],
+  "lambda_note": "lambda = c * std(g0 trên dev); M1 thử cả dấu âm",
+  "overfitting": {
+   "dsr_n_trials": "tổng số cấu hình đã chạy ở S6+S8",
+   "pbo_blocks": 16,
+   "spa_reps": 2000
+  },
+  "splits": {
+   "dev_end": "2022-01-01",
+   "note": "Dev 11/2017-2021, val 2022-2023, test 01/2024-07/2026. Test chỉ chạm một lần ở S9.",
+   "val_end": "2024-01-01"
+  },
+  "test_protocol": {
+   "lock_file": "TEST_LOCK.json",
+   "note": "M0 đã được xem trên test ở bước S1 (benchmark của mã đóng băng); không dùng để chọn gì.",
+   "runs": 1
+  },
+  "tests": {
+   "alpha": 0.05,
+   "cluster": "session",
+   "multiple_testing": "Holm",
+   "tercile": 0.333
+  },
+  "utility": {
+   "definition": "U = sqrt(250) * mean(daily net P&L points) / std(daily net P&L points)",
+   "name": "daily_sharpe_net_points",
+   "periods_per_year": 250,
+   "rf_daily": 0.0
+  },
+  "version": "1.0"
+ },
+ "sha256": "fca2b265e4921e0897da31e3e057e2e5661feded380ac85bff3693708db8b994"
+}

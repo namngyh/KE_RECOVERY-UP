@@ -1,0 +1,49 @@
+{
+ "p0_old5m_tax0": {
+  "trades": 1867,
+  "net_points": 4337.442849999841,
+  "gross_points_before_costs": 4569.199999999842,
+  "wins": 890,
+  "win_rate": 0.4767005891805035,
+  "profit_factor": 1.6596115124268827,
+  "expectancy_points": 2.3232152383502096,
+  "max_drawdown_points": 352.30600499999946,
+  "final_equity_vnd": 533744284.99999833,
+  "long_trades": 1042,
+  "short_trades": 825
+ },
+ "old5m_tax0p1": {
+  "trades": 1867,
+  "net_points": 3909.155636799841,
+  "gross_points_before_costs": 4569.199999999842,
+  "wins": 871,
+  "win_rate": 0.46652383502945904,
+  "profit_factor": 1.5745100806972614,
+  "expectancy_points": 2.093816623888506,
+  "max_drawdown_points": 360.4483022400009,
+  "final_equity_vnd": 490915563.6799837,
+  "long_trades": 1042,
+  "short_trades": 825
+ },
+ "new5m_to_20260717_tax0p1": {
+  "trades": 1807,
+  "net_points": 3818.9246033598474,
+  "gross_points_before_costs": 4446.299999999847,
+  "wins": 844,
+  "win_rate": 0.46707249584947425,
+  "profit_factor": 1.5961644818632166,
+  "expectancy_points": 2.1134059786164068,
+  "max_drawdown_points": 360.4483022400009,
+  "final_equity_vnd": 481892460.33598447,
+  "long_trades": 1014,
+  "short_trades": 793
+ },
+ "params": {
+  "ema_length": 296,
+  "period": 27,
+  "k_smooth": 20,
+  "reg_period": 64,
+  "n1": 6.6,
+  "ma_period": 29
+ }
+}

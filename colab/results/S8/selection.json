@@ -1,0 +1,186 @@
+{
+ "egarch_gate": false,
+ "best_per_family": {
+  "M1": {
+   "config": "M1_c+0.5",
+   "spec": {
+    "add": [
+     [
+      "logh_z",
+      47.892337862796545
+     ]
+    ]
+   },
+   "eligible": false,
+   "dev_U": 3.5359207259667973,
+   "val_U": 1.5983386658797498
+  },
+  "M2": {
+   "config": "M2_band",
+   "spec": {
+    "gates": [
+     {
+      "hi": 0.8,
+      "lo": 0.2,
+      "t": "vol_band"
+     }
+    ]
+   },
+   "eligible": false,
+   "dev_U": 3.0547165173984827,
+   "val_U": 1.5867728966352084
+  },
+  "M3": {
+   "config": "M3_upper",
+   "spec": {
+    "gates": [
+     {
+      "hi": 0.8,
+      "t": "vol_upper"
+     }
+    ]
+   },
+   "eligible": false,
+   "dev_U": 3.142086764562247,
+   "val_U": 2.001418847012575
+  },
+  "M4": {
+   "config": "M4_tau0.45",
+   "spec": {
+    "gates": [
+     {
+      "t": "meta",
+      "tau": 0.45
+     }
+    ]
+   },
+   "eligible": false,
+   "dev_U": 3.604217491023068,
+   "val_U": 1.276166510279618
+  },
+  "M5A": {
+   "config": "M5A_adj",
+   "spec": {
+    "price": "adj"
+   },
+   "eligible": true,
+   "dev_U": 3.5429764704554403,
+   "val_U": 1.5021423720029805
+  },
+  "M5B": {
+   "config": "M5B_season",
+   "spec": {
+    "g_mode": "m5b"
+   },
+   "eligible": true,
+   "dev_U": 3.362359864323482,
+   "val_U": 1.6867227678185555
+  },
+  "M5C": {
+   "config": "M5C_no_entry_after_holiday_or_first_day",
+   "spec": {
+    "gates": [
+     {
+      "t": "cal",
+      "variant": "no_entry_after_holiday_or_first_day"
+     }
+    ]
+   },
+   "eligible": true,
+   "dev_U": 3.3995063971322184,
+   "val_U": 1.2110499367334253
+  },
+  "M6": {
+   "config": "M6_G3ov_c0.1",
+   "spec": {
+    "add": [
+     [
+      "dI_ov_tf",
+      9.57846757255931
+     ]
+    ]
+   },
+   "eligible": true,
+   "dev_U": 3.526592262967856,
+   "val_U": 1.5606083796954682
+  },
+  "M7": {
+   "config": "M7_q0.5",
+   "spec": {
+    "gates": [
+     {
+      "q": 0.5,
+      "t": "er_min"
+     }
+    ]
+   },
+   "eligible": true,
+   "dev_U": 3.5793243465594142,
+   "val_U": 1.468747106310753
+  },
+  "M8": {
+   "config": "M8_adaptive",
+   "spec": {
+    "adaptive": true
+   },
+   "eligible": true,
+   "dev_U": 2.2085456950020563,
+   "val_U": 1.2727913031957674
+  }
+ },
+ "diagnostics": {
+  "M4_meta": {
+   "months_with_model": 97,
+   "events_total": 1807,
+   "first_month_with_model": "2018-07",
+   "dev": {
+    "n": 734,
+    "brier": 0.2573107779672299,
+    "brier_base": 0.24910163413493308,
+    "auc": 0.530635967363362,
+    "mean_net_points_by_prob_tercile": [
+     1.2925445067754195,
+     3.441483680655648,
+     2.1981264568162358
+    ],
+    "win_rate_by_prob_tercile": [
+     0.4163265306122449,
+     0.5122950819672131,
+     0.4816326530612245
+    ]
+   },
+   "val": {
+    "n": 429,
+    "brier": 0.2446554655413047,
+    "brier_base": 0.24724925424226132,
+    "auc": 0.565225035161744,
+    "mean_net_points_by_prob_tercile": [
+     1.747728551608292,
+     2.197793653706213,
+     0.2851242528670542
+    ],
+    "win_rate_by_prob_tercile": [
+     0.3706293706293706,
+     0.48951048951048953,
+     0.4825174825174825
+    ]
+   }
+  },
+  "M8_regime_artifacts": {
+   "M8_crosses_raw": 3433,
+   "M8_crosses_at_regime_change": 426
+  },
+  "M6_best_excluding_ATC_sensitivity": {
+   "config": "M6_G3ov_c0.1",
+   "dev_U": 3.5188567114307254,
+   "val_U": 1.527380993508732,
+   "note": "độ nhạy bổ sung (không có trong đề cương)"
+  },
+  "position_change_share_first2_bars": {
+   "M0": 0.05684995340167754,
+   "M1": 0.056025039123630674,
+   "M2": 0.08935974205435283,
+   "M3": 0.0669090909090909
+  }
+ }
+}

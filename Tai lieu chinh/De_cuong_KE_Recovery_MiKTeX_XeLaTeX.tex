@@ -1,0 +1,689 @@
+% !TeX program = xelatex
+% Đề cương nghiên cứu, phiên bản phương pháp 01/11/2026.
+% Biên dịch: xelatex -interaction=nonstopmode De_cuong_nghien_cuu_KE_Recovery_EGARCHX.tex (hai lần).
+\RequirePackage{iftex}
+\ifXeTeX
+\else
+  \ifLuaTeX
+  \else
+    \PackageError{KE Recovery}{Use XeLaTeX or LuaLaTeX (not pdfLaTeX)}{Choose XeLaTeX in your editor's compiler settings.}
+  \fi
+\fi
+\documentclass[12pt,a4paper,oneside]{article}
+\usepackage[a4paper,left=3cm,right=2.5cm,top=2.7cm,bottom=2.5cm]{geometry}
+\usepackage{fontspec}
+% Khong kiem tra tung ten phong (de tranh goi MikTeX makemf).
+% Windows dung phong mac dinh cua he dieu hanh; Linux dung phong Noto.
+\newcommand{\KeWindowsFonts}{%
+  \setmainfont{Times New Roman}%
+  \setsansfont{Arial}%
+  \setmonofont{Consolas}[Scale=0.83]%
+}
+\newcommand{\KeUnixFonts}{%
+  \setmainfont{Noto Serif}%
+  \setsansfont{Noto Sans}%
+  \setmonofont{DejaVu Sans Mono}[Scale=0.83]%
+}
+\ExplSyntaxOn
+\sys_if_platform_windows:TF {\KeWindowsFonts} {\KeUnixFonts}
+\ExplSyntaxOff
+\usepackage[vietnamese,english]{babel}
+\selectlanguage{vietnamese}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{booktabs,longtable,tabularx,array,multirow}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\hypersetup{colorlinks=true,linkcolor=blue!42!black,urlcolor=blue!48!black,citecolor=blue!40!black,pdftitle={Đề cương nghiên cứu phát triển KE Recovery trên VN30F1M},pdfauthor={Đề cương phương pháp nghiên cứu}}
+\definecolor{primary}{RGB}{25,78,105}
+\definecolor{muted}{RGB}{75,85,95}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection.}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{primary}}{\thesubsection.}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection.}{0.7em}{}
+\titlespacing*{\section}{0pt}{19pt}{9pt}
+\titlespacing*{\subsection}{0pt}{14pt}{6pt}
+\setlength{\parindent}{1.1cm}
+\emergencystretch=2em
+\Urlmuskip=0mu plus 1mu
+\setlength{\parskip}{4pt}
+\renewcommand{\arraystretch}{1.22}
+\setlist[itemize]{leftmargin=1.5em,itemsep=3pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=4pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Đề cương nghiên cứu KE Recovery--EGARCH-X}
+\fancyhead[R]{\small\sffamily 01/11/2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\headheight}{16pt}
+\newcommand{\Ind}{\mathbb{1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Corr}{\operatorname{Corr}}
+\newcommand{\med}{\operatorname{median}}
+\newcommand{\VaR}{\operatorname{VaR}}
+\newcommand{\ES}{\operatorname{ES}}
+\newcommand{\PnL}{\operatorname{PnL}}
+\newcommand{\SR}{\operatorname{SR}}
+\newcommand{\WMA}{\operatorname{WMA}}
+\newcommand{\LinReg}{\operatorname{LinReg}}
+\newcommand{\EMA}{\operatorname{EMA}}
+\newcommand{\RSI}{\operatorname{RSI}}
+\newcommand{\Stoch}{\operatorname{StochK}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\SourceNote}[1]{\begin{quote}\small\color{muted}\textit{Ghi chú phương pháp:} #1\end{quote}}
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{1.8cm}
+{\sffamily\large ĐỀ CƯƠNG NGHIÊN CỨU\par}
+\vspace{1.2cm}
+{\Huge\bfseries\color{primary} PHÁT TRIỂN VÀ KIỂM ĐỊNH CHIẾN LƯỢC KE RECOVERY TRÊN THỊ TRƯỜNG HỢP ĐỒNG TƯƠNG LAI VN30\par}
+\vspace{0.65cm}
+{\Large\bfseries\color{primary} Tích hợp khối lượng giao dịch mua--bán, hiệu chỉnh dữ liệu theo lịch giao dịch và dự báo biến động EGARCH-X\par}
+\vspace{1cm}
+\rule{0.77\linewidth}{0.9pt}\par
+\vspace{0.8cm}
+{\large\sffamily Đề cương phương pháp và kế hoạch thực nghiệm\par}
+\vspace{0.3cm}
+{\normalsize Phiên bản 1.0 -- ngày 01 tháng 11 năm 2026\par}
+\vfill
+\begin{minipage}{0.85\linewidth}
+\small
+\textbf{Phạm vi tài liệu.} Đặc tả chiến lược KE gốc được đối chiếu với tệp \texttt{ke\_recovery.py} do nhóm nghiên cứu cung cấp. Những mô hình M1--M9, giả thuyết thống kê, quy trình kiểm định và mục tiêu hiệu suất là \emph{đề xuất để nghiên cứu}, chưa phải kết quả đã được xác nhận. Tài liệu chưa sử dụng dữ liệu OHLCV, báo cáo backtest hay mã engine; các mục cần xác minh sẽ được nêu tường minh.
+\end{minipage}
+\vspace{1.2cm}
+\end{titlepage}
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\section{Tóm tắt đề tài}
+Nghiên cứu đề xuất phát triển chiến lược \textit{KE Recovery}, một hệ thống giao dịch dựa trên giao cắt của các bộ lọc động lượng và điều kiện xu hướng, trên hợp đồng tương lai chỉ số VN30. Trọng tâm là (i) làm rõ và kiểm định cơ chế sinh lợi của KE gốc; (ii) hiệu chỉnh đặc điểm dữ liệu hợp đồng tương lai, gồm chuyển hợp đồng, kỳ đáo hạn, khoảng nghỉ giao dịch và lợi suất qua đêm; (iii) bổ sung các đặc trưng khối lượng giao dịch mua chủ động và bán chủ động; (iv) tích hợp dự báo phương sai có điều kiện từ EGARCH-X dưới các kiến trúc tín hiệu, bộ lọc, quản trị quy mô vị thế hoặc gắn nhãn thứ cấp; (v) kiểm định khả năng dự báo, hiệu quả giao dịch sau thuế--phí và mức độ bền vững ngoài mẫu.
+
+Đề tài lựa chọn thiết kế \emph{nghiên cứu gia tăng có đối chứng}: một thành phần mới chỉ được giữ lại khi vượt qua các kiểm định về thông tin bổ sung, tính khả thi của giao dịch, độ ổn định tham số và hiệu quả ngoài mẫu. Mọi mô hình được so sánh trong cùng engine và cùng quy ước chi phí: tối đa một hợp đồng tại một thời điểm, phí môi giới giả định $0{,}005\%$ mỗi chiều, trượt giá $0{,}2$ điểm mỗi chiều và tỷ lệ ký quỹ mô phỏng $18{,}48\%$. Thuế và phí hạ tầng được tách riêng theo quy định áp dụng tại ngày giao dịch.
+
+\section{Bối cảnh, vấn đề và cơ sở lý luận}
+\subsection{Bối cảnh nghiên cứu}
+Các hệ thống giao dịch dựa trên bộ lọc kỹ thuật có ưu điểm về tính minh bạch và khả năng triển khai theo thời gian thực. Tuy vậy, hiệu suất cao trong mẫu có thể xuất phát từ lợi thế dự báo, mức tiếp xúc xu hướng, cấu trúc chi phí chưa đầy đủ hoặc lựa chọn tham số sau nhiều lần thử. Nghiên cứu về \textit{data snooping}, xác suất backtest quá khớp và hệ số Sharpe đã điều chỉnh chỉ ra nhu cầu tách biệt hiệu quả trong mẫu và bằng chứng ngoài mẫu \cite{white2000,bailey2017,bailey2014}.
+
+Thị trường hợp đồng tương lai chỉ số còn có đặc điểm: giá trị hợp đồng chịu hệ số nhân, có ký quỹ và thanh toán lãi/lỗ; chuỗi dữ liệu tháng gần chịu tác động của chuyển hợp đồng; khối lượng giao dịch thay đổi theo thời điểm trong ngày; ngày gần đáo hạn và thời điểm mở cửa có cấu trúc khác thường. Những đặc điểm này có thể làm sai lệch chỉ báo kỹ thuật nếu không được ghi nhận trong quy trình dữ liệu.
+
+\subsection{Khoảng trống nghiên cứu}
+Hạn chế trung tâm của KE gốc không phải là thiếu thuật toán phức tạp, mà là chưa có bằng chứng trong tệp chiến lược để phân định: (a) các tín hiệu giao cắt có mang thông tin dự báo; (b) bộ lọc EMA có cải thiện lợi nhuận sau chi phí; (c) khối lượng mua--bán mang thông tin độc lập; (d) dự báo biến động từ EGARCH-X có hỗ trợ việc lựa chọn giao dịch; và (e) các kết quả còn ổn định sau khi điều chỉnh dữ liệu, thuế--phí và tìm kiếm tham số hay không.
+
+\subsection{Cơ sở khoa học}
+Cơ sở dự báo xu hướng được xét dưới dạng phụ thuộc của lợi suất tương lai vào tín hiệu quá khứ. Thông tin dòng giao dịch có thể phản ánh áp lực mua/bán, nhưng cần phân biệt mất cân bằng khối lượng \emph{giao dịch đã khớp} với mất cân bằng sổ lệnh, vốn có cơ chế đo lường khác \cite{cont2014}. EGARCH cho phép mô hình hóa phương sai có điều kiện với phản ứng bất đối xứng của các cú sốc \cite{nelson1991}. Các kết quả dự báo mật độ, biến động và rủi ro đuôi được đánh giá bằng các hàm điểm phù hợp và kiểm định ngoài mẫu, thay vì mặc định một mô hình phức tạp sẽ tạo thêm alpha.
+
+\section{Mục tiêu, câu hỏi và giả thuyết nghiên cứu}
+\subsection{Mục tiêu tổng quát}
+Thiết lập một khuôn khổ có thể tái lập nhằm nhận diện và kiểm định những yếu tố tạo lợi thế dự báo và lợi nhuận sau chi phí của KE Recovery; đánh giá giá trị gia tăng từ đặc trưng dòng giao dịch, hiệu chỉnh chuỗi giá và EGARCH-X; xây dựng phiên bản mở rộng chỉ khi có bằng chứng ngoài mẫu.
+
+\subsection{Mục tiêu cụ thể}
+\begin{enumerate}
+\item Tái lập chính xác KE Recovery gốc: chỉ báo, trạng thái giao cắt, bộ lọc EMA, thời điểm đặt lệnh, khớp lệnh và quy tắc tái tham gia.
+\item Kiểm toán dữ liệu OHLCV, xác nhận định nghĩa khối lượng mua--bán, chuẩn hóa chuỗi hợp đồng tương lai và bảo toàn các biến động thị trường thực.
+\item Xây dựng, kiểm định ý nghĩa dự báo và đóng góp biên của các biến mất cân bằng giao dịch, cường độ khối lượng, biến thiên mất cân bằng.
+\item Đánh giá riêng ảnh hưởng của đáo hạn, chuyển hợp đồng, ngày nghỉ, lợi suất qua đêm và mùa vụ nội phiên.
+\item Xác thực độc lập mô hình EGARCH-X trước khi sử dụng đầu ra dự báo trong KE.
+\item So sánh một tập cấu hình thí nghiệm theo cùng tiêu chuẩn chi phí, vị thế và phân chia mẫu; kiểm soát đa kiểm định.
+\item Xác định giới hạn của bằng chứng về alpha, độ bền, rủi ro và phạm vi triển khai thực tế.
+\end{enumerate}
+
+\subsection{Câu hỏi nghiên cứu}
+\begin{enumerate}[label=Q\arabic*.]
+\item Hiệu suất của KE gốc đến từ tín hiệu động lượng, bộ lọc EMA, thiên hướng Long/Short hay cấu trúc giữ vị thế?
+\item Mất cân bằng khối lượng mua--bán có khả năng dự báo lợi suất ở chân trời khả thi sau thời điểm quan sát không?
+\item Các biến mua--bán có bổ sung thông tin cho tín hiệu KE sau khi kiểm soát động lượng, xu hướng, thời điểm trong phiên và biến động?
+\item Điều chỉnh chuyển hợp đồng và đặc trưng lịch giao dịch làm thay đổi bao nhiêu tín hiệu, giao dịch và hiệu suất?
+\item Dự báo phương sai EGARCH-X có giúp phân biệt tình huống KE hoạt động tốt hoặc kém không?
+\item Phương án tích hợp nào tạo lợi ích ngoài mẫu sau chi phí, ở cùng giả định một hợp đồng và vốn ký quỹ?
+\end{enumerate}
+
+\subsection{Giả thuyết được đăng ký trước}
+Đặt $Y_{t,h}=q_t^{\mathrm{KE}}R_{t,h}^{\mathrm{exec}}$ là lợi suất có dấu theo hướng KE, bắt đầu từ thời điểm thực hiện khả thi. Các giả thuyết chính:
+\begin{align}
+H_{1}:&\quad \E[Y_{t,h}\mid J_t\ \text{cao}]>\E[Y_{t,h}\mid J_t\ \text{thấp}],\\
+H_{2}:&\quad \E[Y_{t,h}\mid A_t\ \text{cao}]\neq\E[Y_{t,h}\mid A_t\ \text{thấp}],\\
+H_{3}:&\quad \E[Y_{t,h}\mid \Delta I_t\ \text{cao}]\neq\E[Y_{t,h}\mid \Delta I_t\ \text{thấp}],\\
+H_{4}:&\quad \E[Y_{t,h}\mid\mathcal C_t]\text{ phụ thuộc có ý nghĩa vào nhóm lịch},\\
+H_{5}:&\quad \E[Y_{t,h}\mid\widehat h_{d(t)\mid d(t)-1}]\text{ không hằng},\\
+H_{6}:&\quad U_{\mathrm{KE+new}}>U_{\mathrm{KE\ base}}
+\quad\text{ở dữ liệu ngoài mẫu},
+\end{align}
+trong đó $J_t=q_t^{\mathrm{KE}}I_t$ và $U$ là hàm hiệu quả sau chi phí đã định nghĩa trước. $H_1$--$H_5$ là giả thuyết về thông tin hoặc tính điều kiện; $H_6$ là giả thuyết về giá trị đầu tư, cần kiểm định riêng. Ngưỡng, chân trời và phương pháp xử lý đa kiểm định phải chốt trước khi xem tập kiểm định cuối.
+
+\section{Phạm vi dữ liệu, ký hiệu và cấu trúc thời gian}
+\subsection{Đối tượng và đơn vị quan sát}
+Đối tượng là hợp đồng tương lai chỉ số VN30 tháng gần, ký hiệu VN30F1M. Dữ liệu dự kiến gồm OHLCV tần suất một phút, hợp đồng cụ thể, dấu thời gian, khối lượng mua chủ động, khối lượng bán chủ động, lịch đáo hạn, ngày không giao dịch và (nếu có) dữ liệu chỉ số cơ sở đồng bộ. Không xác nhận giai đoạn hoặc quy mô mẫu cho đến khi kiểm toán bộ dữ liệu thực tế.
+
+Ký hiệu $t\in\{1,\ldots,T\}$ dùng cho các nến theo thứ tự giao dịch, $d\in\{1,\ldots,D\}$ cho phiên giao dịch và $\tau(t)$ cho vị trí nến trong ngày. Hàm $d(t)$ xác định phiên chứa nến $t$. Dữ liệu giá tại nến $t$ gồm $O_t,H_t,L_t,C_t$, khối lượng tổng $V_t$ và hai phía $V_t^+,V_t^-$. Giá giao dịch thực tế của hợp đồng là $P_t^{\mathrm{raw}}$; giá trong chuỗi đã nối/hiệu chỉnh là $P_t^{\mathrm{adj}}$. Không thay hai đại lượng này cho nhau trong P\&L.
+
+\subsection{Thời điểm thông tin và quy tắc nhân quả}
+Gọi $\mathcal F_t$ là tập thông tin sẵn có ngay khi nến $t$ đóng. Mọi đặc trưng và tham số được dùng tạo tín hiệu tại thời điểm đó phải đo được đối với $\mathcal F_t$. Nếu engine thực hiện lệnh ở mở cửa nến kế tiếp, giá vào khả thi là $O_{t+1}^{\mathrm{raw}}$ cộng/trừ trượt giá, không phải $C_t$. Khi chuyển qua đêm, cần kiểm tra mở cửa phiên kế tiếp và tính khả năng đặt lệnh thật sự.
+
+\section{Đặc tả đầy đủ KE Recovery gốc (M0)}
+\subsection{RSI với phép trung bình hàm mũ theo mã nguồn}
+Đặt $\Delta C_t=C_t-C_{t-1}$, $u_t=(\Delta C_t)^+$ và $v_t=(-\Delta C_t)^+$, với $x^+=\max(x,0)$. Với $n_R=27$ và $a_R=1/n_R$:
+\begin{align}
+U_t&=a_R u_t+(1-a_R)U_{t-1},&D_t^{\mathrm{RSI}}&=a_R v_t+(1-a_R)D_{t-1}^{\mathrm{RSI}},\\
+\RSI_t&=100\frac{U_t}{U_t+D_t^{\mathrm{RSI}}}.
+\end{align}
+Cách khởi tạo cần tái lập theo \texttt{pandas.ewm(alpha=1/n,adjust=False)} trong tệp mã gốc; khác biệt khởi tạo so với một số phiên bản Wilder truyền thống có thể làm sai lệch tín hiệu đầu mẫu. Nếu $U_t+D_t^{\mathrm{RSI}}=0$, ghi thiếu theo đúng logic gốc hoặc thiết lập quy tắc thay thế đã công bố.
+
+\subsection{Stochastic \%K và làm mượt}
+Với $n_K=27$ và $m_K=20$:
+\begin{align}
+H_t^{(n_K)}&=\max_{0\leq j<n_K}H_{t-j},&L_t^{(n_K)}&=\min_{0\leq j<n_K}L_{t-j},\\
+K_t^{\mathrm{raw}}&=100\frac{C_t-L_t^{(n_K)}}{H_t^{(n_K)}-L_t^{(n_K)}},\\
+K_t&=\frac{1}{m_K}\sum_{j=0}^{m_K-1}K_{t-j}^{\mathrm{raw}}.
+\end{align}
+Trường hợp mẫu số bằng 0 phải xử lý như trong mã; không được tự động thay bằng 0 mà không kiểm tra.
+
+\subsection{Chuỗi tổng hợp và hồi quy tại điểm cuối}
+Đầu vào của KE là
+\begin{equation}\label{eq:g0}
+g_t^{(0)}=a_0\RSI_t+K_t,\qquad a_0=6.6.
+\end{equation}
+Trên $L=64$ giá trị gần nhất, hồi quy thời gian với chỉ số $j=0,\dots,L-1$:
+\begin{equation}
+(\widehat a_t,\widehat b_t)=\argmin_{a,b}\sum_{j=0}^{L-1}\big(g_{t-L+1+j}^{(0)}-a-bj\big)^2.
+\end{equation}
+Đường tín hiệu nhanh là giá trị khớp ở điểm cuối cửa sổ:
+\begin{equation}\label{eq:linreg}
+f_t=\widehat a_t+\widehat b_t(L-1)
+=\sum_{j=0}^{L-1}\ell_j g_{t-j}^{(0)},\qquad
+\ell_j=\frac{2(2L-1-3j)}{L(L+1)}.
+\end{equation}
+Công thức hệ số $\ell_j$ tái lập \texttt{\_linreg()} trong mã. Giá trị này không phải dự báo $g_{t+1}$ và không trực tiếp dự báo lợi suất. Khi tín hiệu tăng tuyến tính, bộ lọc khớp điểm cuối có độ trễ thấp hơn trung bình giản đơn, nhưng có thể phản ứng quá mạnh với ngoại lệ.
+
+\subsection{WMA, EMA và giao cắt}
+Với $m=29$, WMA dùng các trọng số mới hơn lớn hơn:
+\begin{equation}\label{eq:wma}
+s_t=\WMA_m(f_t)=\sum_{j=0}^{m-1}\omega_j f_{t-j},\qquad
+\omega_j=\frac{2(m-j)}{m(m+1)}.
+\end{equation}
+Chênh lệch lọc và sự kiện giao cắt:
+\begin{align}
+B_t&=f_t-s_t,\\
+C_t^+&=\Ind(B_t>0,\;B_{t-1}\leq0),\\
+C_t^-&=\Ind(B_t<0,\;B_{t-1}\geq0).
+\end{align}
+Với độ dài EMA $n_E=296$, đặt $a_E=2/(n_E+1)$:
+\begin{equation}
+E_t=a_EC_t+(1-a_E)E_{t-1},\quad
+G_t^+=\Ind(C_t>E_{t-1}),\quad G_t^-=\Ind(C_t<E_{t-1}).
+\end{equation}
+Chữ $C_t$ không có mũ là giá đóng cửa; $C_t^+,C_t^-$ là \emph{biến giao cắt}. Phân biệt các ký hiệu này khi lập trình.
+
+\subsection{Máy trạng thái vị thế}
+Hai trạng thái duy trì tín hiệu giao cắt, $A_t^+,A_t^-$, được cập nhật bằng toán tử \texttt{Flip}, bật khi giao cắt tương ứng xuất hiện và tắt khi giao cắt ngược chiều xuất hiện. Khi đang Long, giao cắt xuống khiến chiến lược thoát Long; khi đang Short, giao cắt lên khiến chiến lược thoát Short. Nếu sau khi thoát đã thỏa đồng thời điều kiện giao cắt đang bật và bộ lọc EMA theo hướng ngược lại, hệ thống có thể đảo chiều trong cùng nến tín hiệu, nhưng phải mô phỏng thành các lượt khớp thực tế.
+
+Đặt vị thế mục tiêu $q_t\in\{-1,0,+1\}$, quy tắc chính xác là giả mã tại Phụ lục~\ref{app:pseudo}. Trong mã gốc, \texttt{signals()} trả về vị thế mục tiêu theo nến; giá khớp do engine bên ngoài xác định ở nến kế tiếp. Cần đóng băng cấu hình này trước mọi cải tiến.
+
+\subsection{Khởi tạo cửa sổ và giới hạn kiểm chứng}
+Nếu không có quan sát thiếu khác, $K_t$ có thể xuất hiện từ nến 46, $g_t$ từ nến 46, $f_t$ từ nến 109, $s_t$ từ nến 137 và giao cắt sớm nhất ở nến 138. Các con số này dựa trên \texttt{rolling} trong tệp Python, có thể thay đổi nếu nguồn dữ liệu chứa giá trị không hợp lệ. Mã gốc chưa chứa phương pháp tính phí, thuế, trượt giá, vốn hoặc quy tắc thanh lý; các thành phần đó thuộc engine cần đối chiếu sau.
+
+\section{Kiểm toán và điều chỉnh dữ liệu hợp đồng tương lai}
+\subsection{Các kiểm tra logic và mức độ đầy đủ}
+Kiểm tra $H_t\geq\max(O_t,C_t)$, $L_t\leq\min(O_t,C_t)$, $O_t,H_t,L_t,C_t>0$, $V_t\geq0$; trùng và thiếu timestamp; giờ giao dịch và nghỉ trưa; giới hạn bước giá; khả năng $V_t^++V_t^-=V_t$ theo định nghĩa dữ liệu. Nếu tổng hai phía không bằng tổng khối lượng thì phải tìm nguyên nhân (khối lượng không phân loại, đơn vị khác, dữ liệu lệnh thay vì khớp) trước khi xây dựng biến mất cân bằng.
+
+Các nến bị thiếu phải được phân loại thành: (i) không có khớp lệnh thực; (ii) lỗi thu thập; (iii) kỳ nghỉ theo lịch; (iv) gián đoạn kỹ thuật. Không mặc định nội suy OHLC hoặc điền 0 cho mọi trường hợp; cần thử phân tích độ nhạy.
+
+\subsection{Chuyển hợp đồng và chuỗi giá liên tục}
+Cho ngày chuyển từ hợp đồng $a$ sang hợp đồng $b$ là $d^*$, tại một thời điểm chồng lấn khả dụng xác định chênh lệch $\Delta_{d^*}=P_{b,d^*}-P_{a,d^*}$. Một chuỗi điều chỉnh cộng lùi có thể được định nghĩa:
+\begin{equation}
+P_t^{\mathrm{adj}}=P_t^{\mathrm{raw}}+A_t,\qquad
+A_t=\sum_{d^*>d(t)}\Delta_{d^*},
+\end{equation}
+trong đó dấu cộng/trừ và nguyên tắc cộng dồn phải quy định thống nhất với hướng nối chuỗi. Với \emph{backtest mang tính nhân quả}, không được sử dụng chênh lệch từ một lần roll chưa xảy ra để tái tính tín hiệu quá khứ trong thời điểm mô phỏng. Dữ liệu điều chỉnh phục vụ tín hiệu khác dữ liệu giá thực tế phục vụ khớp lệnh và tính P\&L. So sánh thêm phương án nối tỷ lệ nếu thích hợp, nhưng phải thừa nhận tính phụ thuộc vào thiết kế chuỗi.
+
+\subsection{Phân tách lợi suất trong phiên và qua đêm}
+Đối với mỗi phiên $d$, sau khi giải quyết vấn đề hợp đồng được so sánh:
+\begin{align}
+r_d^{\mathrm{intra}}&=\log(C_d/O_d),\\
+r_d^{\mathrm{night}}&=\log(O_d/C_{d-1}),\\
+r_d^{\mathrm{cc}}&=r_d^{\mathrm{night}}+r_d^{\mathrm{intra}}.
+\end{align}
+Bước nhảy qua đêm là một biến động kinh tế có thực, không phải tất cả đều là nhiễu cần loại bỏ. Cần ghi độ dài khoảng nghỉ, nghỉ cuối tuần và ngày lễ; xét độc lập ảnh hưởng lên tín hiệu và rủi ro mở cửa. Nếu chỉ giao dịch nội phiên, không được gán toàn bộ rủi ro qua đêm cho khoản lợi nhuận không hề nắm giữ.
+
+\subsection{Đáo hạn, mùa vụ nội phiên và chuẩn hóa}
+Đặt $k_d$ là số phiên còn lại đến ngày đáo hạn của hợp đồng đang giao dịch. Tạo các biến: $\Ind(k_d\in\{0,1,2,3\})$, ngày đầu sau đáo hạn, ngày sau kỳ nghỉ, số ngày nghỉ, vị trí nến trong phiên. Với một đặc trưng $X_{d,\tau}$, có thể chuẩn hóa theo lịch bằng:
+\begin{equation}\label{eq:seasonal}
+\widetilde X_{d,\tau}=
+\frac{X_{d,\tau}-\widehat\mu_{\tau,d-1}^{X}}
+{\widehat\sigma_{\tau,d-1}^{X}+\varepsilon_0},\qquad\varepsilon_0>0,
+\end{equation}
+trong đó $\widehat\mu,\widehat\sigma$ được tính chỉ từ các phiên trước $d$. Nếu chia thêm theo nhóm đáo hạn, phải kiểm tra cỡ mẫu hiệu dụng, độ ổn định và khả năng suy giảm thông tin; không bắt buộc chuẩn hóa riêng những nhóm quá hiếm.
+
+\section{Các đặc trưng khối lượng mua--bán và mô hình mở rộng $g_t$}
+\subsection{Định nghĩa dòng giao dịch đã khớp}
+Giả sử $V_t^+$ là khối lượng thực hiện do bên mua chủ động và $V_t^-$ là khối lượng thực hiện do bên bán chủ động. Đặt tổng phân loại $V_t^\Sigma=V_t^++V_t^-$, với $V_t^\Sigma>0$:
+\begin{equation}\label{eq:imb}
+I_t=\frac{V_t^+-V_t^-}{V_t^++V_t^-}\in[-1,1].
+\end{equation}
+Nếu $V_t^\Sigma=0$, đánh dấu không xác định và dùng cờ thiếu theo quy tắc tiền xử lý. Đây là \emph{trade volume imbalance} (TVI), \textbf{không} đồng nhất với order-book imbalance/OFI từ cập nhật sổ lệnh \cite{cont2014}.
+
+\subsection{Hoạt động giao dịch tương đối và biến thiên mất cân bằng}
+Cho $\overline V_{d-1,\tau}$ là khối lượng trung bình hoặc trung vị tại cùng ô thời gian $\tau$ trên $W_V$ phiên trước:
+\begin{align}
+A_t&=\log\left(1+\frac{V_t}{\overline V_{d(t)-1,\tau(t)}+\varepsilon_V}\right),\\
+\Delta I_t&=I_t-I_{t-1},\qquad
+J_t=q_t^{\mathrm{KE}} I_t.
+\end{align}
+$A_t$ là thước đo hoạt động, $\Delta I_t$ phản ánh biến đổi áp lực giao dịch, còn $J_t$ là mức đồng thuận giữa khối lượng mua/bán và hướng KE. Với $\Delta I_t$, thử so sánh phiên bản chỉ lấy chênh lệch trong cùng phiên với phiên bản cho phép chênh lệch qua đêm.
+
+\subsection{Đặc trưng ứng viên và chuẩn hóa trọng số}
+Giữ nguyên lõi để xác định lợi ích gia tăng:
+\begin{align}
+g_t^{G0}&=g_t^{(0)},\\
+g_t^{G1}&=g_t^{(0)}+\lambda_I\widetilde I_t,\\
+g_t^{G2}&=g_t^{(0)}+\lambda_A\widetilde A_t,\\
+g_t^{G3}&=g_t^{(0)}+\lambda_\Delta\widetilde{\Delta I}_t,\\
+g_t^{G4}&=g_t^{(0)}+\lambda_I\widetilde I_t+\lambda_\Delta\widetilde{\Delta I}_t.
+\end{align}
+Các biến có dấu ngã được chuẩn hóa trên cửa sổ quá khứ. Lưu ý khác biệt thang giữa $6.6\RSI$ và biến chuẩn hóa; trọng số $\lambda$ phải được thiết kế có ý nghĩa về tác động và chọn chỉ trên tập huấn luyện. Khi thay đổi cấu trúc hoàn toàn, xét phiên bản:
+\begin{equation}
+g_t^{G5}=\omega_R\widetilde{\RSI}_t+\omega_K\widetilde K_t+\omega_I\widetilde I_t,
+\end{equation}
+nhưng G5 không còn là phép thêm biến đơn thuần vào KE gốc. Giữ nó như thí nghiệm phụ để không đánh đồng tác động của chuẩn hóa và tác động của thông tin mới.
+
+\subsection{Tác động toán học của biến bổ sung lên giao cắt}
+Do $\LinReg$ tại điểm cuối và WMA đều là bộ lọc tuyến tính, đặt $\mathcal L$ và $\mathcal W$ là các toán tử tương ứng. Với $g_t^{\mathrm{new}}=g_t^{(0)}+\lambda X_t$:
+\begin{equation}\label{eq:linearadd}
+B_t^{\mathrm{new}}=(I-\mathcal W)\mathcal L(g_t^{\mathrm{new}})
+=B_t^{(0)}+\lambda (I-\mathcal W)\mathcal L(X_t).
+\end{equation}
+Do đó, biến có mức trung bình cao nhưng không thay đổi theo thời gian có thể đóng góp rất ít vào tín hiệu giao cắt, trong khi biến có bước nhảy theo lịch có thể tạo phản ứng cơ học lớn. Điều này giải thích vì sao dự báo biến động theo ngày không nên tự động cộng trực tiếp vào $g_t$ theo phút.
+
+\section{Nhánh EGARCH-X: đặc tả và xác thực độc lập}
+\subsection{Mô hình phân phối có điều kiện}
+Với lợi suất ở tần suất mà mô hình EGARCH-X được ước lượng, ký hiệu $r_d$:
+\begin{align}
+r_d&=\mu_d+\sqrt{h_d}z_d,\\
+\log h_d&=\omega+\beta\log h_{d-1}+\kappa\big(|z_{d-1}|-\E|z|\big)
++\theta z_{d-1}+\bm\gamma^\top\bm X_{d-1}+\bm\delta^\top\bm D_d.
+\end{align}
+$h_d$ là phương sai có điều kiện, $z_d$ là nhiễu chuẩn hóa với $\E z_d=0$, $\Var(z_d)=1$. $\bm X_{d-1}$ chứa RV hoặc biến được định nghĩa cụ thể trong phiên bản EGARCH-X đã khóa; $\bm D_d$ gồm biến lịch đã biết trước thời điểm dự báo. Giá trị $\E|z|$ phải tính theo phân phối giả định, không mặc định là chuẩn nếu chọn Student-$t$ hay skewed-$t$.
+
+\subsection{Đặc tả RV và xử lý khoảng nghỉ}
+Cho $r_{d,j}^{\mathrm{intra}}$ là lợi suất các khoảng có giao dịch trong phiên $d$. Đại lượng cơ sở:
+\begin{equation}
+RV_d^{\mathrm{intra}}=\sum_{j\in\mathcal J_d}(r_{d,j}^{\mathrm{intra}})^2.
+\end{equation}
+Nếu định nghĩa nghiên cứu RV bao gồm đóng góp từ nghỉ trưa, qua đêm hoặc cú nhảy có kiểm soát, biểu diễn tổng quát:
+\begin{equation}
+RV_d^{\mathrm{adj}}=RV_d^{\mathrm{intra}}+
+\chi_{\mathrm{lunch}}(r_d^{\mathrm{lunch}})^2+
+\chi_{\mathrm{night}}(r_d^{\mathrm{night}})^2-
+\mathcal A_d^{\mathrm{roll}},
+\end{equation}
+trong đó các hệ số $\chi$ và hiệu chỉnh $\mathcal A_d^{\mathrm{roll}}$ \emph{chỉ là ký hiệu vị trí cho đặc tả cần đối chiếu với mã EGARCH-X cuối cùng}, không phải công thức đã được xác nhận. Không tự ý đặt một giá trị âm khiến RV mất tính không âm; cần tái lập đúng phương pháp điều chỉnh dữ liệu trước khi bình phương lợi suất. Thử tách RV nội phiên và overnight thành các đặc trưng khác nhau để tránh đếm trùng.
+
+\subsection{Phân phối nhiễu và hàm hợp lý}
+Ứng viên: chuẩn $\mathcal N(0,1)$, Student-$t$ đã chuẩn hóa phương sai và skewed-$t$ với quy tắc tham số hóa được xác định trước. Với $z_d=(r_d-\mu_d)/\sqrt{h_d}$, log-likelihood có điều kiện là:
+\begin{equation}
+\ell(\Theta)=\sum_{d=d_0}^{D}\left[-\frac12\log h_d+
+\log f_z\left(\frac{r_d-\mu_d}{\sqrt{h_d}};\vartheta\right)\right].
+\end{equation}
+Giá trị $f_z$ phải là mật độ có trung bình 0, phương sai 1 theo tham số ước lượng; điều kiện $\nu>2$ cần áp đặt nếu sử dụng Student-$t$ với phương sai hữu hạn. Tập tham số $\Theta$ và điều kiện ổn định, nhận dạng được khai báo theo đúng phiên bản mô hình đã khóa.
+
+\subsection{Đầu ra dự báo và đồng bộ thời gian}
+Tại cuối phiên $d-1$, xuất dự báo $\widehat h_{d\mid d-1}$, $\widehat\sigma_{d\mid d-1}=\sqrt{\widehat h_{d\mid d-1}}$ và phân vị phân phối lợi suất:
+\begin{equation}
+\widehat Q_{\alpha,d}=\widehat\mu_{d\mid d-1}+
+\widehat\sigma_{d\mid d-1}F_z^{-1}(\alpha).
+\end{equation}
+Nếu biến $\bm X_d$ cần lợi suất qua đêm từ đóng cửa $d-1$ đến mở cửa $d$, chỉ có thể dùng dữ liệu đó để \emph{cập nhật sau mở cửa}; không thể giả vờ đã biết ở cuối $d-1$. Dự báo theo ngày áp vào tín hiệu theo phút cần được đóng dấu thời gian, không được chia phương sai ngày tùy tiện cho các nến phút. Khi để $\widehat h_d$ bất biến trong một ngày, cộng trực tiếp vào $g_t$ tạo chuỗi dạng bậc thang và có thể tạo giao cắt ở ranh giới ngày.
+
+\subsection{Các đánh giá bắt buộc của EGARCH-X}
+\begin{align}
+\operatorname{QLIKE}_d&=\log\widehat h_d+\frac{RV_d^{\mathrm{proxy}}}{\widehat h_d},\\
+LS_d&=-\log \widehat p_{d\mid d-1}(r_d),\\
+u_d&=\widehat F_{d\mid d-1}(r_d).
+\end{align}
+Dùng QLIKE (hàm mất mát thấp hơn tốt hơn), log-score âm (thấp hơn tốt hơn) và PIT $u_d$; đánh giá số vi phạm VaR $\Ind(r_d<\widehat Q_{\alpha,d})$, kiểm định Kupiec/Christoffersen khi số quan sát đủ và các hàm điểm VaR--ES nhất quán như lớp Fissler--Ziegel khi phù hợp \cite{fissler2016}. Kiểm tra Ljung--Box của $z_d,z_d^2$, ARCH-LM phần dư, sai lệch tham số theo cửa sổ; đối chứng với rolling volatility/RV đơn giản. Diebold--Mariano chỉ dùng sau khi xác định hàm mất mát và hiệu chỉnh phụ thuộc của chênh lệch mất mát \cite{dm1995}.
+
+\section{Các kiến trúc KE mở rộng và bảng cấu hình}
+\subsection{Phân biệt chức năng dự báo và quyết định}
+Các thành phần được tách: \emph{mô hình thống kê} ước lượng phân phối/rủi ro, \emph{mô hình tín hiệu} đề xuất hướng giao dịch, và \emph{mô hình quyết định} lọc, xác định vị thế và quản trị vốn. Việc EGARCH-X mô tả phân phối tốt không đảm bảo alpha trong giao dịch.
+
+\subsection{Tập cấu hình nghiên cứu}
+\begin{longtable}{p{1.4cm}p{5.4cm}p{7.2cm}}
+\toprule
+\textbf{Mã} & \textbf{Đặc tả} & \textbf{Câu hỏi kiểm định}\\\midrule\endfirsthead
+\toprule\textbf{Mã}&\textbf{Đặc tả}&\textbf{Câu hỏi kiểm định}\\\midrule\endhead
+M0& KE gốc, tham số cố định & Benchmark: tái lập tín hiệu, P\&L và chi phí.\\
+M1& $g_t=g_t^{(0)}+\lambda_h\widetilde{\log\widehat h_{d(t)}}$ & Thông tin biến động theo ngày có cải thiện tín hiệu giao cắt không, hay chỉ tạo bước nhảy ngày?\\
+M2& KE + bộ lọc độ biến động có điều kiện & Chất lượng giao dịch có khác nhau theo các phân vị dự báo biến động?\\
+M3& KE + quản trị vị thế theo biến động & Có cải thiện rủi ro sau khi chuẩn hóa mức tiếp xúc không? Đối chứng bắt buộc một hợp đồng cố định.\\
+M4& KE + Meta-Labeling & Đặc trưng dòng giao dịch/EGARCH-X có dự báo giao dịch KE thành công?\\
+M5A& KE trên dữ liệu nối hợp đồng hiệu chỉnh & Cải thiện phát sinh từ giảm sai lệch chuỗi giá hay từ lựa chọn thị trường?\\
+M5B& KE với chỉ báo chuẩn hóa theo lịch & Có cải thiện thông tin khi loại mùa vụ nội phiên?\\
+M5C& KE + biến/bộ lọc đáo hạn/ngày nghỉ & Hiệu quả có phụ thuộc lịch giao dịch?\\
+M6& KE + TVI, hoạt động tương đối, $\Delta I$ & Đặc trưng mua/bán bổ sung thông tin dự báo không?\\
+M7& KE + chỉ báo chất lượng xu hướng & Tránh giai đoạn giằng co có cải thiện hiệu quả không?\\
+M8& KE + bộ lọc LinReg/WMA thích nghi & Có giảm độ trễ thật sự, hay chỉ tăng số tham số?\\
+M9& Ghép các cải tiến độc lập đã vượt cổng đánh giá & Lợi ích có cộng gộp ngoài mẫu hay bị tương quan, chồng lấn?\\
+\bottomrule
+\end{longtable}
+
+\subsection{Đặc tả bộ lọc biến động (M2) và vị thế (M3)}
+Đặt $Q_d^{\sigma}$ là phân vị lịch sử, được ước lượng trước phiên $d$, của dự báo biến động. Một quy tắc lọc được đăng ký trước:
+\begin{equation}
+q_t^{M2}=q_t^{\mathrm{KE}}\Ind\big(c_L\leq Q_{d(t)}^{\sigma}\leq c_H\big).
+\end{equation}
+$[c_L,c_H]$ chỉ được chọn trên tập phát triển; nhánh lọc phải theo dõi đầy đủ các vị thế đang mở (không thể xóa vị thế bằng cách nhân zero mà bỏ qua phí đóng). Để đánh giá hiệu quả của dự báo biến động với quản trị vốn, định nghĩa \emph{quy mô mục tiêu liên tục}:
+\begin{equation}
+\widetilde n_t=\min\left\{n_{\max},\frac{\sigma^*}{\widehat\sigma_{d(t)\mid d(t)-1}}\right\}.
+\end{equation}
+Tuy nhiên, \textbf{backtest chính của dự án luôn tối đa một hợp đồng} $n_t=|q_t|\in\{0,1\}$. Vì vậy M3 trong phép so sánh chính phải dùng quy tắc nhị phân hoặc phân bổ vốn dự trữ mà không mua quá một hợp đồng. Một thí nghiệm riêng với quy mô thực/đòn bẩy thay đổi chỉ được báo cáo dưới nhãn \emph{phân tích nhạy cảm}, không trộn cùng bảng so sánh một hợp đồng.
+
+\subsection{Chất lượng xu hướng và bộ lọc thích nghi}
+Với $n$ nến, \emph{efficiency ratio}:
+\begin{equation}
+ER_t=\frac{|C_t-C_{t-n}|}{\sum_{j=0}^{n-1}|C_{t-j}-C_{t-j-1}|}.
+\end{equation}
+$ER_t$ gần 1 biểu thị biến động ròng lớn so với tổng quãng đường dao động, không đảm bảo xu hướng sẽ tiếp tục. Bộ lọc M7 kiểm tra $ER_t$ như biến điều kiện và so sánh với không lọc. M8 có thể chọn $L_t=\phi(ER_t,\widehat\sigma_t)$, $m_t=\psi(ER_t,\widehat\sigma_t)$ theo luật cố định trước và dữ liệu quá khứ; không tối ưu lại $L_t,m_t$ sau khi đã thấy lợi nhuận từng đoạn.
+
+\subsection{Meta-Labeling (M4)}
+Đối với thời điểm $e$ có tín hiệu KE mới, định nghĩa hướng $d_e\in\{-1,+1\}$, giá khớp thực tế $P_e^{\mathrm{entry}}$, giá thoát theo chính sách đã cố định $P_e^{\mathrm{exit}}$ và lợi nhuận ròng $\Pi_e^{\mathrm{net}}$. Nhãn:
+\begin{equation}
+y_e^{\mathrm{meta}}=\Ind\big(\Pi_e^{\mathrm{net}}>0\big),\quad
+p_e=\Pr(y_e^{\mathrm{meta}}=1\mid\bm Z_e,d_e).
+\end{equation}
+$\bm Z_e$ gồm đặc trưng đã biết khi tín hiệu xuất hiện: $|B_e|$, khoảng cách tới EMA, $I_e$, $\Delta I_e$, $A_e$, lịch đáo hạn, dự báo EGARCH-X hiện hành. Các nhãn có thể chồng lấn theo thời gian; cần \emph{purging}, embargo và dữ liệu dự báo \emph{out-of-fold} theo thời gian cho cả mô hình chính nếu chính nó được ước lượng. Nhãn thành công phải phản ánh chi phí thật và cơ chế thoát của KE; không gán nhãn chỉ dựa vào dấu close-to-close. Brier score:
+\begin{equation}
+BS=\frac{1}{N_e}\sum_e(p_e-y_e^{\mathrm{meta}})^2,
+\end{equation}
+và kiểm tra calibration, precision--recall, lợi nhuận theo nhóm xác suất; không chọn Meta-Model chỉ bằng accuracy.
+
+\section{Thiết kế kiểm định giả thuyết và xác thực giá trị bổ sung}
+\subsection{Tách kiểm định tiền mô hình và hậu mô hình}
+Các kiểm tra dữ liệu, định nghĩa biến, quan hệ thời điểm, độ ổn định sơ bộ, mùa vụ, đa cộng tuyến và khả năng dự báo được thực hiện trước khi lựa chọn cấu hình. Các chỉ số Sharpe, drawdown, PBO, DSR, kiểm định lợi nhuận sau phí chỉ có ý nghĩa sau khi đã tạo lợi suất backtest và ghi lịch sử lựa chọn tham số. ADF, KPSS không là điều kiện bắt buộc để sử dụng RSI/EMA; ARCH-LM chỉ cần khi xây dựng/đánh giá nhánh biến động; kiểm định ở chuỗi không dừng phải gắn với giả định của mô hình cụ thể.
+
+\subsection{Kiểm định trung bình có điều kiện và hồi quy dự báo}
+Đối với tín hiệu nhị phân $S_t$, định nghĩa:
+\begin{align}
+\mu_1(h)&=\E[R_{t,h}^{\mathrm{exec}}\mid S_t=1],&
+\widehat\mu_1(h)&=\frac{\sum_t S_tR_{t,h}^{\mathrm{exec}}}{\sum_t S_t},\\
+\mu_0(h)&=\E[R_{t,h}^{\mathrm{exec}}\mid S_t=0],&
+\widehat\mu_0(h)&=\frac{\sum_t(1-S_t)R_{t,h}^{\mathrm{exec}}}{\sum_t(1-S_t)}.
+\end{align}
+Thực hiện $H_0:\mu_1(h)-\mu_0(h)\leq0$ so với $H_1:\mu_1(h)-\mu_0(h)>0$ nếu có cơ sở hướng kỳ vọng được đăng ký trước; nếu không, sử dụng kiểm định hai phía. Hồi quy có hệ số chặn:
+\begin{equation}
+R_{t,h}^{\mathrm{exec}}=\alpha_h+\beta_h S_t+\varepsilon_{t,h},\qquad
+\widehat\beta_h=\widehat\mu_1(h)-\widehat\mu_0(h).
+\end{equation}
+Dùng sai số chuẩn HAC, block-bootstrap theo phiên hoặc suy luận cụm phù hợp khi quan sát trong phiên/phần lợi suất mục tiêu chồng lấn. Công bố khoảng tin cậy, kích thước hiệu ứng và số tín hiệu, không chỉ p-value.
+
+\subsection{Hiệu ứng mua--bán có điều kiện theo tín hiệu KE}
+Trên các nến đủ điều kiện giao dịch, ước lượng:
+\begin{equation}\label{eq:increment}
+Y_{t,h}=\alpha_h+\beta_{I,h} J_t+\beta_{A,h}A_t
++\beta_{\Delta,h}\Delta I_t+\bm\gamma_h^\top\bm C_t+\varepsilon_{t,h},
+\end{equation}
+trong đó $\bm C_t$ gồm dấu tín hiệu, động lượng, thời điểm trong phiên, lợi suất gần đây, đặc trưng lịch và (khi phù hợp) biến động đã biết. Kiểm định từng hệ số với kiểm soát đa kiểm định; kiểm định Wald chung $H_0:\beta_I=\beta_A=\beta_\Delta=0$ để đo thông tin nhóm. Phải so sánh với mô hình chỉ chứa đặc trưng KE nhằm xác định phần thông tin tăng thêm.
+
+\subsection{Thông tin dự báo và hiệp phương sai vị thế--lợi suất}
+Đặt $q_t$ là vị thế mục tiêu sau tín hiệu và $R_{t,1}^{\mathrm{exec}}$ là lợi suất khả thi ở khoảng kế tiếp:
+\begin{equation}
+\E[q_tR_{t,1}^{\mathrm{exec}}]=\Cov(q_t,R_{t,1}^{\mathrm{exec}})
++\E[q_t]\E[R_{t,1}^{\mathrm{exec}}].
+\end{equation}
+Không đồng nhất hiệp phương sai dương với hệ số chặn Jensen dương. Nếu ước lượng chiến lược theo mô hình nhân tố phù hợp:
+\begin{equation}
+r_{p,d}^{\mathrm{excess}}=\alpha_p+\bm\beta_p^\top\bm F_d+\epsilon_{p,d},
+\end{equation}
+$\alpha_p$ là lợi nhuận bất thường theo mô hình nhân tố được lựa chọn; bộ nhân tố phù hợp với VN30F1M phải được giải trình và không thể mặc định mô hình CAPM giải thích hết rủi ro của chiến lược kỹ thuật.
+
+\subsection{Phân rã đóng góp từng thành phần (ablation)}
+Đối chứng A0: KE gốc. A1: RSI-only; A2: Stochastic-only; A3: bỏ EMA; A4: thay LinReg bằng WMA/SMA đơn giản; A5: thay tham số lân cận; A6: Long-only/Short-only; A7: chỉ đóng ngày so với giữ qua đêm (nếu engine hỗ trợ). Khi loại biến, cần có cả phép bỏ trực tiếp và phương án tái hiệu chỉnh chỉ trong mẫu train; không rút kết luận từ sự thay đổi cơ học do chuẩn hóa khác nhau.
+
+\section{Backtest thống nhất: vốn, phí, thuế, khớp lệnh và ký quỹ}\label{sec:backtest}
+\subsection{Quy ước bắt buộc do nghiên cứu xác định}
+Mọi cấu hình dùng chung một engine mô phỏng và dữ liệu khớp lệnh. Thiết lập chính:
+\begin{itemize}
+\item Số lượng vị thế thực tế $n_t\in\{0,1\}$; dấu $q_t\in\{-1,0,+1\}$, luôn vào lại tối đa \textbf{một hợp đồng} khi điều kiện mở mới xuất hiện; không tự tăng số hợp đồng khi vốn tăng.
+\item Phí môi giới giả định $b=0{,}005\%=0{,}00005$ \textbf{trên mỗi chiều}; cơ sở giá trị danh nghĩa dùng $P^{\mathrm{exec}} M n$ theo cấu hình nghiên cứu, phải đối chiếu báo cáo/engine khi nhận được.
+\item Trượt giá cố định $\delta=0{,}2$ điểm \textbf{mỗi chiều}; lệnh mua khớp bất lợi cao hơn giá tham chiếu, lệnh bán khớp bất lợi thấp hơn.
+\item Tỷ lệ ký quỹ dùng cho kiểm tra vốn và khả năng duy trì vị thế là $m^{\mathrm{sim}}=18{,}48\%$; \textbf{không dùng mặc định} tỷ lệ này làm cơ sở thuế theo quy định.
+\item Giá trị hợp đồng VN30: hệ số nhân $M=100{,}000$ đồng/điểm chỉ số; theo thông tin sản phẩm của VSDC \cite{vsdcproduct}.
+\item Giá trị vốn đầu kỳ $E_0$, phương pháp ghi nhận lãi/lỗ theo ngày, trạng thái qua đêm, quy tắc thanh lý bắt buộc và ngày đổi hợp đồng phải được tái lập từ engine/báo cáo khi được cung cấp. Không tự suy đoán.
+\end{itemize}
+
+\subsection{Giá khớp với slippage và quy mô một hợp đồng}
+Đặt $P_j^0$ là giá mở cửa nến tiếp theo hoặc tham chiếu hợp lệ của lượt khớp $j$, $a_j\in\{+1,-1\}$ là chiều \emph{lệnh khớp} ($+1$ mua, $-1$ bán), khác dấu vị thế. Khi đó:
+\begin{equation}\label{eq:fill}
+P_j^{\mathrm{exec}}=P_j^0+a_j\delta,\qquad\delta=0.2.
+\end{equation}
+Nếu mua rồi bán, mỗi lượt chịu slippage 0.2 điểm, tổng ảnh hưởng bất lợi tới P\&L là 0.4 điểm/hợp đồng, tức 40.000 đồng/hợp đồng vòng khứ hồi. \textbf{Không} trừ thêm 40.000 đồng lần nữa nếu slippage đã được phản ánh trong giá khớp. Trường hợp đảo chiều vị thế $+1\to-1$ phải được ghi nhận là \emph{hai lượt khớp} (bán đóng Long, bán mở Short), nếu engine thực hiện bằng hai giao dịch một hợp đồng; phí/thuế tính cho mỗi lượt thực tế.
+
+\subsection{Lãi/lỗ hợp đồng}
+Với một giao dịch $e$ có hướng $d_e\in\{-1,+1\}$, giá vào $P_e^{\mathrm{in}}$, giá ra $P_e^{\mathrm{out}}$ đã gồm trượt giá:
+\begin{equation}
+\PnL_e^{\mathrm{gross}}=d_e M\big(P_e^{\mathrm{out}}-P_e^{\mathrm{in}}\big).
+\end{equation}
+Lợi nhuận ròng $\PnL_e^{\mathrm{net}}$ là gross trừ phí môi giới, phí hạ tầng được chuyển cho nhà đầu tư, thuế TNCN và các chi phí khác thực sự áp dụng. Đối với biến động qua ngày, engine phải đối chiếu cơ chế thanh toán hàng ngày, đảm bảo không ghi nhận lãi/lỗ hai lần ở thời điểm cuối ngày và đóng vị thế.
+
+\subsection{Phí môi giới và phí hạ tầng}
+Phí môi giới tại mỗi lượt $j$:
+\begin{equation}\label{eq:broker}
+F_j^{\mathrm{broker}}=b\,P_j^{\mathrm{exec}}M n_j,
+\qquad b=0.00005,\quad n_j=1.
+\end{equation}
+Mức giá dịch vụ cơ sở được nêu tại Quyết định 1541/QĐ-BTC ngày 29/4/2025 là $F^{\mathrm{HNX}}=2{,}700$ đồng/hợp đồng giao dịch và $F^{\mathrm{VSDC}}=2{,}550$ đồng/hợp đồng thế vị; chưa gồm VAT nếu có. Thông tư 125/2026/TT-BTC có hiệu lực 06/10/2026 cho tiếp tục áp dụng Quyết định 1541 cho tới khi có văn bản thay thế \cite{qd1541,tt125}. Do đó ở thời kỳ hiệu lực thích hợp, chi phí mỗi lượt thực tế có thể biểu diễn:
+\begin{equation}\label{eq:infra}
+F_j^{\mathrm{infra}}=
+(1+v_j^{H})\,2700\,n_j+(1+v_j^{V})\,2550\,n_j,
+\end{equation}
+trong đó $v_j^H,v_j^V$ là VAT thực tế trên hóa đơn hoặc biểu phí được chuyển cho nhà đầu tư; không gán cố định nếu chưa đối chiếu với chứng từ/engine. Giá dịch vụ trực tiếp thu ở cấp thành viên không nhất thiết được môi giới chuyển nguyên trạng cho khách hàng. Nếu phí 0.005\% đã là \emph{all-in}, phải tắt những hạng mục bị trùng, không tự động cộng hai lần. Phí quản lý tài sản ký quỹ và các khoản phát sinh theo ngày/tháng chỉ tính nếu thực tế ghi nhận ở tài khoản nhà đầu tư, không mặc định là 5.250 đồng mỗi lượt.
+
+\subsection{Thuế thu nhập cá nhân chuyển nhượng hợp đồng tương lai}\label{sec:tax}
+Theo Điều 5 Thông tư 87/2026/TT-BTC (hiệu lực 01/7/2026), thuế TNCN áp dụng đối với cá nhân trên từng lần chuyển nhượng hợp đồng tương lai theo giá chuyển nhượng được xác định bằng giá thanh toán tại thời điểm xác định thu nhập, hệ số nhân, số lượng hợp đồng và \emph{tỷ lệ ký quỹ ban đầu do VSDC công bố}, chia 2 \cite{tt87,govtax}. Đặt $P_j^{\mathrm{tax}}$ là giá theo căn cứ thuế, $m_j^{\mathrm{VSDC}}$ là tỷ lệ có hiệu lực tại lượt $j$:
+\begin{equation}\label{eq:tax}
+\boxed{T_j^{\mathrm{PIT}}=0.001\,P_j^{\mathrm{tax}}M n_j\frac{m_j^{\mathrm{VSDC}}}{2}.}
+\end{equation}
+Thời điểm xác định là khi khớp lệnh mua, bán hoặc lúc đáo hạn; đây không phải thuế $0.1\%$ trên chênh lệch lãi ròng. Cần giữ tách biệt $m^{\mathrm{sim}}=18.48\%$ (giả định ký quỹ của backtest) và $m_j^{\mathrm{VSDC}}$ (căn cứ thuế theo pháp luật). Với lịch sử trải qua nhiều quy định, ghi bảng hiệu lực theo ngày của văn bản và tỷ lệ VSDC; không áp một mức tháng 11/2026 cho toàn bộ các năm.
+
+\subsection{Minh họa số học và điểm hòa vốn}
+Cho \emph{giả định minh họa} $P^{\mathrm{exec}}=1800$ điểm, $M=100000$ đồng/điểm, $m^{\mathrm{VSDC}}=17\%$, $n=1$. Phí môi giới một lượt:
+\begin{equation}
+F^{\mathrm{broker}}=0.00005\times1800\times100000=9{,}000\ \mathrm{VND}.
+\end{equation}
+Thuế một lượt theo \eqref{eq:tax}, với $P^{tax}=1800$:
+\begin{equation}
+T^{\mathrm{PIT}}=0.001\times1800\times100000\times\frac{0.17}{2}=15{,}300\ \mathrm{VND}.
+\end{equation}
+Phí cơ sở HNX+VSDC trước VAT là $5{,}250$ đồng/lượt nếu chuyển đầy đủ; slippage tương đương 20.000 đồng/lượt, nếu chưa phản ánh trong giá khớp. Tổng tác động tương đương \emph{trước VAT và giả sử không bị gộp phí} là $49{,}550$ đồng/lượt; vòng khứ hồi xấp xỉ $99{,}100$ đồng ở cùng mặt bằng giá, tương ứng $0.991$ điểm. Đây chỉ là ví dụ kiểm tra công thức, không phải chi phí chính thức cho mọi hợp đồng, ngày hoặc tài khoản. Với ký quỹ mô phỏng $18.48\%$, giá trị ký quỹ ước tính cho một hợp đồng ở giá 1800 là $0.1848\times1800\times100000=33{,}264{,}000$ đồng, \emph{không phải khoản phí bị mất}.
+
+\subsection{Đối chiếu engine và các trường hợp bắt buộc thử}
+Mỗi lượt giao dịch phải có: \texttt{signal\_time}, \texttt{order\_time}, \texttt{fill\_time}, mã hợp đồng thực, giá tham chiếu, giá khớp, hướng lệnh, ký quỹ, hoa hồng, phí hạ tầng, VAT, thuế, P\&L và vốn sau giao dịch. Cần tạo \emph{unit tests} cho Long--đóng Long, Short--đóng Short, đảo chiều, giữ qua đêm, giao dịch sát đáo hạn, chuyển hợp đồng, thanh lý do thiếu ký quỹ và thời điểm không khớp được. Khi tiếp nhận engine sẽ điều chỉnh bản đặc tả kỹ thuật sao cho tái lập được báo cáo gốc, nhưng phải lưu cả lịch sử sửa đổi.
+
+\section{Thiết kế phân chia mẫu, đánh giá ngoài mẫu và chống quá khớp}
+\subsection{Phân chia ba tầng theo thời gian}
+Dữ liệu được chia thành tập phát triển, tập lựa chọn/xác thực và tập kiểm định cuối được niêm phong. Trong tập phát triển, sử dụng các nếp \emph{walk-forward} dạng mở rộng hoặc trượt; ước lượng, chuẩn hóa, chọn ngưỡng và tham số chỉ từ quá khứ. Các nhãn có chân trời nắm giữ chồng lấn được xử lý bằng \emph{purging/embargo} khi các tập có nhãn giao nhau. Nếu lịch sử KE gốc hoặc EGARCH-X đã được tối ưu nhiều lần trên cùng dữ liệu, phải thừa nhận tập đó không còn hoàn toàn độc lập để kiểm định cuối.
+
+\subsection{Tiêu chí dự báo}
+Đánh giá IC (Pearson hoặc Spearman) của tín hiệu và lợi suất tương lai khả thi, $\mathrm{IC}=\Corr(S_t,R_{t,h}^{\mathrm{exec}})$; hệ số hồi quy, khác biệt trung bình có điều kiện, hiệu suất dự báo ngoài mẫu và sai số dự báo. Cần xử lý phụ thuộc quan sát ở tần suất phút và báo cáo theo cả ngày/phiên thay vì coi tất cả nến độc lập.
+
+\subsection{Chỉ số lợi nhuận và rủi ro}
+Cho $E_d$ là vốn cuối phiên, $r_{p,d}=(E_d-E_{d-1})/E_{d-1}$, $\bar r_p=D^{-1}\sum_d r_{p,d}$ và $s_p$ là độ lệch chuẩn mẫu. Hệ số Sharpe thường niên hóa:
+\begin{equation}
+\SR=\sqrt{N_y}\frac{\bar r_p-r_f^{(d)}}{s_p},
+\end{equation}
+với $N_y$ là số phiên giao dịch/năm và $r_f^{(d)}$ cùng đơn vị ngày. Trong trường hợp lợi nhuận chủ yếu từ ký quỹ, phải nêu rõ mẫu số vốn $E_d$ và mức tiếp xúc rủi ro. Drawdown:
+\begin{align}
+\mathrm{DD}_d&=1-\frac{E_d}{\max_{u\leq d}E_u},&
+\mathrm{MDD}&=\max_d\mathrm{DD}_d.
+\end{align}
+Kỳ vọng một giao dịch sau phí:
+\begin{equation}
+\E[\Pi^{net}]=p\,G-(1-p)L-C,
+\end{equation}
+với $p$ là xác suất thắng, $G$ và $L$ là mức lãi/lỗ trung bình tính theo trị tuyệt đối \emph{trước chi phí}, $C$ là chi phí kỳ vọng; nếu $G,L$ đã là net thì không trừ $C$ lần nữa. Báo cáo thêm Profit Factor, win rate, thời gian nắm giữ, turnover, CVaR/ES, hiệu suất Long/Short và hiệu suất theo nhóm sự kiện.
+
+\subsection{Kiểm định so sánh mô hình theo cặp}
+Trên cùng ngày, đặt $\Delta r_d=r_{p,d}^{M}-r_{p,d}^{M0}$ và $\Delta U_d=U_d^{M}-U_d^{M0}$. Kiểm định $H_0:\E\Delta U_d\leq0$ so với $H_1:\E\Delta U_d>0$ nếu đã đăng ký trước hướng cải thiện. Sử dụng paired block bootstrap theo phiên/tuần, báo cáo khoảng tin cậy và phân phối khác biệt; không áp kiểm định t độc lập cho các chiến lược dùng cùng chuỗi giá. Khi so sánh nhiều mô hình cần kiểm soát sai lầm phát hiện bằng Holm, FDR hoặc kiểm định họ chiến lược như Reality Check/SPA khi phù hợp \cite{white2000,hansen2005}.
+
+\subsection{Xác suất backtest quá khớp (PBO)}
+Với $N$ cấu hình thực tế đã thử, chia mẫu thành $S$ khối thích hợp, thực hiện Combinatorially Symmetric Cross-Validation (CSCV) trên lịch sử lợi suất cấu hình. Ở mỗi chia $c$, chọn cấu hình tốt nhất trong mẫu $k_c^*$, xếp hạng hiệu suất của nó ngoài mẫu $\omega_c\in(0,1)$ và biến đổi
+\begin{equation}
+\lambda_c=\log\frac{\omega_c}{1-\omega_c},\qquad
+\widehat{\mathrm{PBO}}=\frac{1}{C}\sum_{c=1}^C\Ind(\lambda_c<0).
+\end{equation}
+PBO đánh giá nguy cơ lựa chọn theo backtest quá khớp \cite{bailey2017}; kết quả phụ thuộc cách chia khối, mức phụ thuộc chuỗi và tập cấu hình đầy đủ. CSCV không thay thế walk-forward thuận thời gian.
+
+\subsection{Deflated Sharpe Ratio (DSR)}
+Cho $\widehat{SR}$ là Sharpe trên chuỗi lợi suất cùng kỳ, $T_o$ là số quan sát hiệu dụng, $\widehat\gamma_3$ độ lệch, $\widehat\gamma_4$ độ nhọn thông thường (Normal bằng 3), và $SR^*$ là mốc Sharpe được điều chỉnh theo số thử nghiệm hữu hiệu. Một dạng thống kê:
+\begin{equation}
+Z_{\mathrm{DSR}}=\frac{(\widehat{SR}-SR^*)\sqrt{T_o-1}}
+{\sqrt{1-\widehat\gamma_3\widehat{SR}+
+\frac{\widehat\gamma_4-1}{4}\widehat{SR}^{\,2}}},\qquad
+DSR=\Phi(Z_{\mathrm{DSR}}).
+\end{equation}
+Các giả thiết của xấp xỉ và cách xác định số phép thử độc lập hữu hiệu phải được nêu rõ, đặc biệt vì các cấu hình KE gần nhau rất tương quan. DSR là biện pháp hiệu chỉnh bằng chứng Sharpe, không phải xác suất chắc chắn lợi nhuận tương lai \cite{bailey2014}.
+
+\section{Quy trình triển khai, sản phẩm và tiêu chí ra quyết định}
+\subsection{Trình tự thực hiện}
+\begin{longtable}{p{1.35cm}p{6.0cm}p{6.6cm}}
+\toprule
+\textbf{Mốc} & \textbf{Nhiệm vụ} & \textbf{Đầu ra/cổng chuyển bước}\\\midrule\endfirsthead
+\toprule\textbf{Mốc}&\textbf{Nhiệm vụ}&\textbf{Đầu ra/cổng chuyển bước}\\\midrule\endhead
+P0& Đóng băng mã KE gốc, tham số, phiên bản engine, đối chiếu báo cáo & Benchmark tái lập được từng lệnh/giá/chi phí; không tự đổi logic.\\
+P1& Kiểm toán dữ liệu, hợp đồng, lịch, buy/sell volume; dựng phiên bản dữ liệu điều chỉnh & Bộ dữ liệu kèm báo cáo lỗi và nhật ký xử lý.\\
+P2& Phân tích phân phối và mùa vụ; dựng $I,A,\Delta I,J$ & Tập đặc trưng có timestamp, đơn vị và quy tắc missing.\\
+P3& Kiểm định dự báo đơn biến/đa biến, thông tin gia tăng và ảnh hưởng lịch & Bảng giả thuyết, khoảng tin cậy, kiểm định đa so sánh.\\
+P4& Phân rã KE bằng ablation, Long/Short và độ nhạy tham số & Báo cáo cơ chế sinh lợi, phân biệt tác động tín hiệu và tiếp xúc thị trường.\\
+P5& Khóa phiên bản EGARCH-X, kiểm định residual/QLIKE/PIT/LS/VaR--ES & Chuỗi dự báo ngoài mẫu với thời điểm công bố và báo cáo hiệu chỉnh.\\
+P6& Xây dựng M1--M8 theo thiết kế đã đăng ký & Ma trận giao dịch và lợi suất trên cùng engine một hợp đồng.\\
+P7& Walk-forward, paired bootstrap, nhiều mức chi phí, PBO/DSR & Báo cáo ổn định và thử nghiệm áp lực/độ nhạy.\\
+P8& Ghép M9 nếu các nhánh vượt chuẩn; kiểm định cuối chưa sử dụng & Đặc tả mô hình được lựa chọn và giới hạn suy luận.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Quy tắc lựa chọn mô hình}
+Một cải tiến chỉ được chấp nhận nếu: (i) không có sai lệch thời điểm và backtest có khả năng thực hiện; (ii) có đóng góp dự báo ngoài mẫu hoặc tác dụng quản trị rủi ro được xác định rõ; (iii) lợi ích sau thuế--phí trên cùng mức tiếp xúc vốn không bị triệt tiêu; (iv) kết quả không phụ thuộc một giá trị tham số đơn lẻ; (v) khi xét nhiều cấu hình, kết luận được điều chỉnh thích hợp; (vi) không làm suy yếu đáng kể rủi ro đuôi và khả năng duy trì ký quỹ so với baseline mà không có lý do kinh tế rõ.
+
+\subsection{Sản phẩm kỳ vọng}
+\begin{enumerate}
+\item Đặc tả đầy đủ KE Recovery và bộ kiểm thử hồi quy tương thích với \texttt{ke\_recovery.py}.
+\item Tài liệu kiểm toán dữ liệu, đặc trưng mua/bán và kỹ thuật xử lý đáo hạn, nghỉ phiên.
+\item Bộ giả thuyết và báo cáo kết quả các kiểm định kinh tế lượng có thể tái lập.
+\item Tập dự báo EGARCH-X ngoài mẫu có dấu thời gian và bằng chứng hiệu chỉnh.
+\item Cùng một bảng so sánh M0--M9: P\&L sau phí, Sharpe, drawdown, expectancy, số lệnh, rủi ro và độ bền.
+\item Báo cáo giới hạn khoa học, nghiên cứu tiếp theo và mã thực nghiệm/ghi nhận toàn bộ cấu hình đã chạy.
+\end{enumerate}
+
+\section{Rủi ro phương pháp, giới hạn và nguyên tắc diễn giải}
+Nghiên cứu không giả định mô hình thêm biến chắc chắn vượt KE. Các rủi ro chính gồm: nhầm lẫn volume mua/bán với OFI từ sổ lệnh; nội suy giá làm giả tín hiệu; sử dụng giá adjusted cho P\&L; dùng biến overnight trước thời điểm khả dụng; sai giá/thuế/phí tại đảo chiều; áp một tỷ lệ ký quỹ VSDC cho toàn lịch sử; thiếu dữ liệu thực ở đuôi và sự kiện hiếm; thay ngưỡng liên tục trên test; kết luận alpha dựa vào hiệp phương sai mà chưa kiểm soát mức tiếp xúc thị trường; so sánh quản trị vị thế nhiều hợp đồng với chuẩn một hợp đồng. Thí nghiệm bổ sung chỉ được triển khai khi có cơ chế kinh tế và mục tiêu riêng đã mô tả trước.
+
+\section{Kết luận đề cương}
+Đề tài được xây dựng theo hướng kiểm định \emph{thông tin tăng thêm} thay vì tối đa hóa số lượng biến. KE Recovery giữ vai trò hệ thống tín hiệu gốc, dữ liệu hiệu chỉnh tạo nền tảng đo lường hợp lệ, các biến khối lượng mua--bán kiểm định thông tin giao dịch mới, EGARCH-X hỗ trợ đánh giá điều kiện rủi ro và Meta-Labeling (nếu có bằng chứng và đủ mẫu) hỗ trợ quyết định thực hiện tín hiệu. Đóng góp cốt lõi mong muốn là một khung thực nghiệm nghiêm ngặt nhằm xác định rõ nguồn lợi nhuận, mức độ bền vững, giá trị gia tăng và tính triển khai thực tế trên VN30F1M, kể cả khi mô hình mở rộng không vượt benchmark.
+
+\clearpage
+\appendix
+\section{Bảng ký hiệu toán học nhất quán}\label{app:symbols}
+\small
+\begin{longtable}{p{3.5cm}p{10.8cm}}
+\toprule\textbf{Ký hiệu} & \textbf{Ý nghĩa và đơn vị}\\\midrule\endfirsthead
+\toprule\textbf{Ký hiệu}&\textbf{Ý nghĩa và đơn vị}\\\midrule\endhead
+$t,d,\tau(t)$ & Chỉ số nến, phiên giao dịch và vị trí nến trong phiên.\\
+$O_t,H_t,L_t,C_t$ & Giá mở, cao, thấp, đóng cửa của nến, tính bằng điểm chỉ số.\\
+$P_t^{raw},P_t^{adj}$ & Giá hợp đồng thực tế và chuỗi giá điều chỉnh để tính chỉ báo.\\
+$V_t,V_t^+,V_t^-$ & Khối lượng tổng, mua chủ động và bán chủ động (hợp đồng).\\
+$\RSI_t,K_t$ & RSI và stochastic sau làm mượt, thông thường thuộc $[0,100]$.\\
+$g_t^{(0)},g_t^{Gk}$ & Chỉ báo tổng hợp gốc và biến thể có đặc trưng mới.\\
+$\widehat a_t,\widehat b_t$ & Hệ số chặn và hệ số góc OLS trên cửa sổ của $g_t$.\\
+$f_t,s_t,B_t$ & Giá trị hồi quy cuối, WMA của nó và chênh lệch $f_t-s_t$.\\
+$E_t$ & EMA của giá trong phần KE; ký hiệu này khác vốn tài khoản $\mathcal E_d$.\\
+$q_t,d_e$ & Vị thế mục tiêu theo nến và hướng giao dịch của một lượt (Long/Short).\\
+$I_t,A_t,\Delta I_t,J_t$ & Mất cân bằng khối lượng, cường độ giao dịch, biến thiên mất cân bằng, đồng thuận với KE.\\
+$\widetilde X_t$ & Đặc trưng được chuẩn hóa nhân quả theo dữ liệu quá khứ.\\
+$r_d,\mu_d,h_d,z_d$ & Lợi suất, trung bình, phương sai có điều kiện và sai số chuẩn hóa của EGARCH-X.\\
+$RV_d^{adj}$ & Biến động thực hiện được thiết kế theo phiên bản RV đã khóa.\\
+$\widehat h_{d\mid d-1}$ & Phương sai phiên $d$ dự báo từ thông tin có đến cuối $d-1$.\\
+$R_{t,h}^{exec},Y_{t,h}$ & Lợi suất khả thi ở chân trời $h$ và lợi suất theo hướng KE.\\
+$M,b,\delta$ & Hệ số nhân $100000$ đ/điểm; phí $0.00005$/chiều; slippage $0.2$ điểm/chiều.\\
+$m^{sim},m_j^{VSDC}$ & Tỷ lệ ký quỹ mô phỏng $0.1848$ và tỷ lệ VSDC theo ngày, mục đích thuế.\\
+$F_j^{broker},F_j^{infra},T_j^{PIT}$ & Phí môi giới, phí hạ tầng và thuế TNCN mỗi lượt (đồng).\\
+$P_j^{exec},P_j^{tax}$ & Giá thực hiện khớp lệnh và giá làm căn cứ tính thuế (có thể khác).\\
+$\mathcal E_d$ & Vốn/tài sản tài khoản cuối phiên (đồng), tránh nhầm EMA $E_t$.\\
+$\Pi_e^{net}$ & P\&L sau chi phí của giao dịch $e$ (đồng).\\
+$\SR,\mathrm{MDD},\mathrm{PBO},\mathrm{DSR}$ & Sharpe, drawdown tối đa, xác suất quá khớp và Sharpe hiệu chỉnh.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Giả mã tham chiếu và kiểm toán engine}\label{app:pseudo}
+\begin{enumerate}
+\item Đọc các nến tăng dần theo thời gian; xác định chính xác mã hợp đồng thực tại mỗi nến.
+\item Tính RSI--Stochastic theo công thức và khởi tạo của file gốc; tạo $g_t$, $f_t$, $s_t$, EMA; phát hiện giao cắt.
+\item Cập nhật trạng thái \texttt{Flip} cho Long/Short: giao cắt lên bật Long, tắt Short; giao cắt xuống bật Short, tắt Long.
+\item Kiểm tra vị thế trước nến: nếu đang Long và có giao cắt xuống thì chuyển thành 0; nếu đang Short và có giao cắt lên thì chuyển thành 0.
+\item Nếu vị thế 0, xét trạng thái tín hiệu đang bật và EMA nến trước; mở Long/Short theo nhánh tương ứng; mã gốc ưu tiên nhánh Long khi hai nhánh cùng thỏa (trên thực tế không kỳ vọng đồng thời).
+\item Lưu $q_t$ là vị thế \emph{mục tiêu} sau nến, không coi là đã khớp ở $C_t$.
+\item Khi tới thời điểm khớp hợp lệ kế tiếp, tính số lượt mua/bán thực, giá khớp có slippage, số hợp đồng sau lệnh, phí, thuế và tiền ký quỹ khả dụng.
+\item Nếu vốn không đủ duy trì một hợp đồng, ghi nhận từ chối lệnh hoặc thanh lý theo chính sách engine đã khóa. Không âm thầm tiếp tục giao dịch thiếu vốn.
+\item Ghi giá trị tài khoản theo cơ chế thanh toán/lãi lỗ thực tế, bảo đảm không đếm hai lần khi ghi nhận P\&L cuối ngày.
+\item So sánh danh sách từng lượt giao dịch với báo cáo KE gốc; nếu sai, sửa engine trước khi tiến hành M1--M9.
+\end{enumerate}
+
+\section{Bảng kiểm bảo đảm chất lượng trước khi báo cáo kết quả}
+\begin{longtable}{p{1.3cm}p{12.8cm}}
+\toprule\textbf{Mục}&\textbf{Kiểm tra bắt buộc}\\\midrule\endfirsthead
+\toprule\textbf{Mục}&\textbf{Kiểm tra bắt buộc}\\\midrule\endhead
+D1& Không có OHLC sai, trùng timestamp, hợp đồng không nhất quán hoặc thiếu nến không được phân loại.\\
+D2& Có chứng cứ định nghĩa mua/bán chủ động; ghi rõ tỷ lệ khối lượng chưa phân loại.\\
+D3& Giá adjusted chỉ dùng cho tín hiệu; giá hợp đồng thực dùng cho P\&L, thuế và kiểm tra ký quỹ.\\
+D4& Bản ghi có thời điểm dữ liệu xuất hiện thực tế, ngăn sử dụng lợi suất qua đêm trước mở cửa.\\
+K1& Tái lập trạng thái giao cắt và vị thế KE gốc; khớp nến kế tiếp, không khớp hồi tố.\\
+K2& Đảo chiều được chia thành hai lượt khớp khi thực tế phát sinh hai lệnh đối ứng.\\
+C1& Phí 0.005\% mỗi chiều; slippage 0.2 điểm mỗi chiều; không đếm trùng chi phí.\\
+C2& Ký quỹ 18.48\% dùng cho mô phỏng; thuế dùng tỷ lệ VSDC đúng thời kỳ.\\
+C3& Phí HNX, VSDC và VAT đối chiếu thời kỳ/biểu phí công ty chứng khoán; không đếm hai lần.\\
+V1& Chuẩn hóa đặc trưng, tính mùa vụ và tuning dựa vào dữ liệu quá khứ.\\
+V2& Đăng ký mục tiêu, ngưỡng, thước đo chính, chi phí và số lần thử trước tập test cuối.\\
+V3& Cùng giai đoạn, cùng engine, cùng tiền vốn và đúng giới hạn một hợp đồng.\\
+V4& Báo cáo đủ cấu hình thất bại, khoảng tin cậy, nhiều mức chi phí và nhạy cảm tham số.\\
+V5& Có cơ chế xử lý nhãn chồng lấn, kiểm định nhiều lần và báo cáo PBO/DSR có điều kiện áp dụng.\\
+\bottomrule
+\end{longtable}
+
+\section{Tài liệu và cơ sở pháp lý tham khảo}
+\begin{thebibliography}{99}
+\bibitem{nelson1991} Nelson, D. B. (1991). Conditional Heteroskedasticity in Asset Returns: A New Approach. \textit{Econometrica}, 59(2), 347--370. \url{https://doi.org/10.2307/2938260}.
+\bibitem{cont2014} Cont, R., Kukanov, A., \& Stoikov, S. (2014). The Price Impact of Order Book Events. \textit{Journal of Financial Econometrics}, 12(1), 47--88. \url{https://doi.org/10.1093/jjfinec/nbt003}.
+\bibitem{white2000} White, H. (2000). A Reality Check for Data Snooping. \textit{Econometrica}, 68(5), 1097--1126. \url{https://doi.org/10.1111/1468-0262.00152}.
+\bibitem{hansen2005} Hansen, P. R. (2005). A Test for Superior Predictive Ability. \textit{Journal of Business \& Economic Statistics}, 23(4), 365--380. \url{https://doi.org/10.1198/073500105000000063}.
+\bibitem{dm1995} Diebold, F. X., \& Mariano, R. S. (1995). Comparing Predictive Accuracy. \textit{Journal of Business \& Economic Statistics}, 13(3), 253--263. \url{https://doi.org/10.1080/07350015.1995.10524599}.
+\bibitem{fissler2016} Fissler, T., \& Ziegel, J. F. (2016). Higher Order Elicitability and Osband's Principle. \textit{The Annals of Statistics}, 44(4), 1680--1707. \url{https://doi.org/10.1214/16-AOS1439}.
+\bibitem{bailey2014} Bailey, D. H., \& López de Prado, M. (2014). The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-normality. \textit{The Journal of Portfolio Management}, 40(5), 94--107. \url{https://doi.org/10.3905/jpm.2014.40.5.094}.
+\bibitem{bailey2017} Bailey, D. H., Borwein, J. M., López de Prado, M., \& Zhu, Q. J. (2017). The Probability of Backtest Overfitting. \textit{Journal of Computational Finance}. \url{https://doi.org/10.21314/JCF.2016.322}.
+\bibitem{vsdcproduct} Tổng công ty Lưu ký và Bù trừ chứng khoán Việt Nam (VSDC). Thông tin sản phẩm hợp đồng tương lai VN30, hệ số nhân 100.000 đồng/điểm. \url{https://vsdc.vn/vi/thong-tin-san-pham}.
+\bibitem{vsdcmargin} VSDC. Trang công bố tỷ lệ ký quỹ ban đầu theo ngày hiệu lực, bao gồm thông báo ngày 14/10/2026 hiệu lực 16/10/2026. \url{https://vsdc.vn/vi/alc/109}.
+\bibitem{tt87} Bộ Tài chính. Thông tư số 87/2026/TT-BTC ngày 30/06/2026, Điều 5, có hiệu lực 01/07/2026: thuế TNCN đối với chuyển nhượng chứng khoán phái sinh. \url{https://vanban.chinhphu.vn/} (tra cứu theo số văn bản); bản toàn văn đối chiếu: \url{https://www.vplsdms.vn/thong-tu-872026tt-btc-ngay-30062026-huong-dan-luat-thue-thu-nhap-ca-nhan-va-nghi-dinh-2532026nd-cp-huong-dan-luat-thue-thu-nhap-ca-nhan}.
+\bibitem{govtax} Báo Điện tử Chính phủ (04/10/2026). Giải đáp về thuế đối với giao dịch hợp đồng chênh lệch, viện dẫn Điều 5 Thông tư 87/2026/TT-BTC. \url{https://baochinhphu.vn/giao-dich-cfd-qua-moi-gioi-nuoc-ngoai-co-phai-nop-thue-102260930101156923.htm}.
+\bibitem{qd1541} Bộ Tài chính. Quyết định số 1541/QĐ-BTC ngày 29/04/2025: mức giá dịch vụ trong lĩnh vực chứng khoán; giao dịch HĐTL chỉ số 2.700 đồng/hợp đồng và bù trừ 2.550 đồng/hợp đồng thế vị; chưa gồm VAT (nếu có). \url{https://thuvienphapluat.vn/van-ban/EN/Chung-khoan/Decision-1541-QD-BTC-2025-prices-of-securities-services-applied-to-Vietnam-Exchange/655935/tieng-anh.aspx}.
+\bibitem{tt125} Bộ Tài chính. Thông tư số 125/2026/TT-BTC, hiệu lực 06/10/2026: quy định tiếp tục áp dụng bảng giá Quyết định 1541/QĐ-BTC trong giai đoạn chuyển tiếp. \url{https://congluatviet.vn/van-ban/thong-tu-sua-doi-thong-tu-83-2024-tt-btc-34-2026-tt-btc-moi-nhat-125-2026-tt-btc}.
+\bibitem{sourcecode} Tệp \texttt{ke\_recovery.py} do nhóm nghiên cứu cung cấp trong cuộc trao đổi ngày 01/11/2026; cơ sở để tái lập KE Recovery gốc.
+\end{thebibliography}
+
+\vspace{1cm}
+\begin{center}\small\color{muted}
+\textit{Kết thúc bản đề cương. Mọi kết quả kiểm định và hiệu suất chưa tính từ dữ liệu được trình bày là mục tiêu nghiên cứu, không phải phát hiện thực nghiệm.}
+\end{center}
+\end{document}

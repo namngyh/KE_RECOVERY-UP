@@ -1,0 +1,13 @@
+{
+ "step": "S7",
+ "status": "OK",
+ "seconds": 135.3,
+ "summary": {
+  "chosen": "skew_t",
+  "best_benchmark_val": "mean_RV_5",
+  "qlike_val_egarch": 1.2883,
+  "qlike_val_benchmark": 1.208,
+  "dm_p": 1.0,
+  "gate_passed": false
+ }
+}

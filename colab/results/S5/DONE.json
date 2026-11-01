@@ -1,0 +1,25 @@
+{
+ "step": "S5",
+ "status": "OK",
+ "seconds": 29.7,
+ "summary": {
+  "primary_h": 6,
+  "n_obs_h6": 39857,
+  "p_values_h6": {
+   "H1_dev": 0.959,
+   "H1_val": 0.7721,
+   "H2_dev": 0.0321,
+   "H2_val": 0.2962,
+   "H3_in_dev": 0.1697,
+   "H3_in_val": 0.3736,
+   "H3_ov_dev": 0.0755,
+   "H3_ov_val": 0.2893,
+   "H4_dev": 0.002,
+   "H4_val": 0.2596
+  },
+  "increment_wald_p": {
+   "dev": 0.6781,
+   "val": 0.0876
+  }
+ }
+}

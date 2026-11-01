@@ -1,0 +1,141 @@
+[
+ {
+  "step": "S0",
+  "status": "skipped (đã có DONE.json; dùng force=True để chạy lại)"
+ },
+ {
+  "step": "S1",
+  "status": "skipped (đã có DONE.json; dùng force=True để chạy lại)"
+ },
+ {
+  "step": "S2",
+  "status": "OK",
+  "seconds": 1.6,
+  "summary": {
+   "rolls": 105,
+   "outlier_rolls": [
+    "2020-05-21"
+   ],
+   "delta_mean": -1.5174285714285567,
+   "delta_std": 11.832267162669691,
+   "r_night_std_roll_days_raw": 0.012958299427593427,
+   "r_night_std_roll_days_adj": 0.006908930276198081,
+   "causal_equivalence_cuts_checked": 13,
+   "near_expiry_sessions": 420
+  }
+ },
+ {
+  "step": "S3",
+  "status": "OK",
+  "seconds": 0.7,
+  "summary": {
+   "bars": 110056,
+   "unclassified_bars": 1137,
+   "I_std_atc": 0.8779876606143735,
+   "I_std_non_atc": 0.3049419826964172,
+   "I_tilde_std_atc": 1.0816695657941626,
+   "I_tilde_std_non_atc": 0.7352150389434777
+  }
+ },
+ {
+  "step": "S4",
+  "status": "OK",
+  "seconds": 0.1,
+  "summary": {
+   "prereg_sha256": "fca2b265e4921e08",
+   "split": {
+    "dev": "2017-11-06..2021-12-31 (1042 phiên)",
+    "val": "2022-01-04..2023-12-29 (498 phiên)",
+    "test": "2024-01-02..2026-07-17 (631 phiên)"
+   }
+  }
+ },
+ {
+  "step": "S5",
+  "status": "OK",
+  "seconds": 29.7,
+  "summary": {
+   "primary_h": 6,
+   "n_obs_h6": 39857,
+   "p_values_h6": {
+    "H1_dev": 0.959,
+    "H1_val": 0.7721,
+    "H2_dev": 0.0321,
+    "H2_val": 0.2962,
+    "H3_in_dev": 0.1697,
+    "H3_in_val": 0.3736,
+    "H3_ov_dev": 0.0755,
+    "H3_ov_val": 0.2893,
+    "H4_dev": 0.002,
+    "H4_val": 0.2596
+   },
+   "increment_wald_p": {
+    "dev": 0.6781,
+    "val": 0.0876
+   }
+  }
+ },
+ {
+  "step": "S6",
+  "status": "OK",
+  "seconds": 18.5,
+  "summary": {
+   "configs": 27,
+   "A0_U_dev": 3.545,
+   "A0_U_val": 1.492,
+   "exposure_share": {
+    "A0_KE_goc": 0.578,
+    "A6_long_only": 0.331,
+    "A6_short_only": 0.247
+   },
+   "best_dev_config": "A5_k_smooth_18"
+  }
+ },
+ {
+  "step": "S7",
+  "status": "OK",
+  "seconds": 135.3,
+  "summary": {
+   "chosen": "skew_t",
+   "best_benchmark_val": "mean_RV_5",
+   "qlike_val_egarch": 1.2883,
+   "qlike_val_benchmark": 1.208,
+   "dm_p": 1.0,
+   "gate_passed": false
+  }
+ },
+ {
+  "step": "S8",
+  "status": "OK",
+  "seconds": 39.2,
+  "summary": {
+   "configs": 47,
+   "egarch_gate": false,
+   "best_per_family": {
+    "M1": "M1_c+0.5 (U dev 3.54 / val 1.60)",
+    "M2": "M2_band (U dev 3.05 / val 1.59)",
+    "M3": "M3_upper (U dev 3.14 / val 2.00)",
+    "M4": "M4_tau0.45 (U dev 3.60 / val 1.28)",
+    "M5A": "M5A_adj (U dev 3.54 / val 1.50)",
+    "M5B": "M5B_season (U dev 3.36 / val 1.69)",
+    "M5C": "M5C_no_entry_after_holiday_or_first_day (U dev 3.40 / val 1.21)",
+    "M6": "M6_G3ov_c0.1 (U dev 3.53 / val 1.56)",
+    "M7": "M7_q0.5 (U dev 3.58 / val 1.47)",
+    "M8": "M8_adaptive (U dev 2.21 / val 1.27)"
+   },
+   "M0": "U dev 3.54 / val 1.49"
+  }
+ },
+ {
+  "step": "S9",
+  "status": "OK",
+  "seconds": 15.7,
+  "summary": {
+   "passed": [],
+   "M9": "không dựng",
+   "SPA_p": 0.3713,
+   "PBO": 0.278,
+   "test": "đã chạy"
+  }
+ }
+]

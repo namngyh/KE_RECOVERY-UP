@@ -1,0 +1,47 @@
+{
+ "audit_1m": {
+  "rows": 525635,
+  "sessions": 2171,
+  "first_ts": "2017-11-06 08:59:00",
+  "last_ts": "2026-07-17 14:45:00",
+  "symbols": {
+   "VN30F1M": 525635
+  },
+  "duplicate_ts": 0,
+  "null_cells": 0,
+  "non_positive_price": 0,
+  "high_below_open_or_close": 0,
+  "low_above_open_or_close": 0,
+  "negative_volume": 0,
+  "classified_gt_volume": 0,
+  "classified_eq_volume": 522735,
+  "classified_lt_volume_nonzero": 1443,
+  "unclassified_rows": 1457,
+  "unclassified_volume_share": 0.014931872309723229,
+  "classified_volume_share": 0.9827293131971034,
+  "zero_volume_rows": 0,
+  "minute_of_day_min": "08:59",
+  "minute_of_day_max": "14:57",
+  "rows_before_0900": 5,
+  "rows_from_1445": 2171,
+  "rows_in_lunch_1130_1259": 1850,
+  "rows_per_session_min": 115,
+  "rows_per_session_median": 243.0,
+  "rows_per_session_max": 245,
+  "sessions_with_fewer_than_100_rows": 0,
+  "weekend_sessions": 0
+ },
+ "resample_checks": {
+  "volume_equal": true,
+  "buy_equal": true,
+  "sell_equal": true,
+  "high_max_equal": true,
+  "low_min_equal": true,
+  "minutes_conserved": true,
+  "sessions_equal": true,
+  "bars_5m": 110056,
+  "bars_with_unclassified": 1137
+ },
+ "matches_old_5m_prices": true,
+ "volume_mismatch_bars_vs_old_5m": 15
+}

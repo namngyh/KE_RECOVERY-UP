@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# Tệp biên dịch LaTeX (giữ .tex và .pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz

@@ -1,0 +1,22 @@
+{
+ "step": "S8",
+ "status": "OK",
+ "seconds": 39.2,
+ "summary": {
+  "configs": 47,
+  "egarch_gate": false,
+  "best_per_family": {
+   "M1": "M1_c+0.5 (U dev 3.54 / val 1.60)",
+   "M2": "M2_band (U dev 3.05 / val 1.59)",
+   "M3": "M3_upper (U dev 3.14 / val 2.00)",
+   "M4": "M4_tau0.45 (U dev 3.60 / val 1.28)",
+   "M5A": "M5A_adj (U dev 3.54 / val 1.50)",
+   "M5B": "M5B_season (U dev 3.36 / val 1.69)",
+   "M5C": "M5C_no_entry_after_holiday_or_first_day (U dev 3.40 / val 1.21)",
+   "M6": "M6_G3ov_c0.1 (U dev 3.53 / val 1.56)",
+   "M7": "M7_q0.5 (U dev 3.58 / val 1.47)",
+   "M8": "M8_adaptive (U dev 2.21 / val 1.27)"
+  },
+  "M0": "U dev 3.54 / val 1.49"
+ }
+}

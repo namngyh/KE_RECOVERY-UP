@@ -1,0 +1,11 @@
+{
+ "step": "S0",
+ "status": "OK",
+ "seconds": 6.2,
+ "summary": {
+  "rows_1m": 525635,
+  "bars_5m": 110056,
+  "unclassified_rows": 1457,
+  "matches_old_5m_prices": true
+ }
+}

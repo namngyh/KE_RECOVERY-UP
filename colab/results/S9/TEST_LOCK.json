@@ -1,0 +1,9 @@
+{
+ "timestamp": "2026-11-01T13:19:28",
+ "rerun": false,
+ "locked": [
+  "M0"
+ ],
+ "prereg_sha256": "fca2b265e4921e0897da31e3e057e2e5661feded380ac85bff3693708db8b994",
+ "spec_sha256": "05c073e2199b76df3951c27c21a89ec241d43aa4ca071af41cbbb14a25061b21"
+}

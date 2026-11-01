@@ -1,0 +1,17 @@
+{
+ "step": "S2",
+ "status": "OK",
+ "seconds": 1.6,
+ "summary": {
+  "rolls": 105,
+  "outlier_rolls": [
+   "2020-05-21"
+  ],
+  "delta_mean": -1.5174285714285567,
+  "delta_std": 11.832267162669691,
+  "r_night_std_roll_days_raw": 0.012958299427593427,
+  "r_night_std_roll_days_adj": 0.006908930276198081,
+  "causal_equivalence_cuts_checked": 13,
+  "near_expiry_sessions": 420
+ }
+}

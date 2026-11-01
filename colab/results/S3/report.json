@@ -1,0 +1,24 @@
+{
+ "bars": 110056,
+ "unclassified_bars": 1137,
+ "I_nan_share": 0.010331104165152287,
+ "dI_in_nan_share": 0.030311841244457367,
+ "dI_ov_nan_share": 0.01859053572726612,
+ "atc_bars": 2168,
+ "I_mean_atc": 0.4779321837780109,
+ "I_std_atc": 0.8779876606143735,
+ "I_mean_non_atc": 0.046171202969128654,
+ "I_std_non_atc": 0.3049419826964172,
+ "I_tilde_std_atc": 1.0816695657941626,
+ "I_tilde_std_non_atc": 0.7352150389434777,
+ "A_tilde_std_atc": 0.6047977992273513,
+ "A_tilde_std_non_atc": 0.786943559522673,
+ "max_abs_standardized": {
+  "I_t": 19.994663820704375,
+  "A_t": 9.464972132867052,
+  "dI_in_t": 4.658918594701151,
+  "dI_ov_t": 6.090443476266035
+ },
+ "causality_check": "đã đổi toàn bộ khối lượng và giá sau nến giữa mẫu: đặc trưng trước đó không đổi",
+ "missing_rule": "Ĩ thiếu (V_sigma=0) -> đặt 0 sau chuẩn hóa, kèm cờ unclassified; ATC KHÔNG bị loại"
+}
